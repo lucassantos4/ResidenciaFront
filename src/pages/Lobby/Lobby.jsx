@@ -3,7 +3,7 @@ import logoCencosud from '../../assets/images/cencosud.svg';
 import { Link } from 'react-router-dom';
 
 import './lobby.css'; 
-import ConfiguracaoSala from '../CreateRoom/ConfigureRoom';
+import ConfiguracaoSala from '../ConfigureRoom/ConfigureRoom';
 
 const CencosudPinPage = () => {
   const [pin, setPin] = useState('');

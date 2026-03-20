@@ -5,8 +5,8 @@ import ScrollToTop from "./components/ScrollToTop";
 // Importe suas páginas (verifique se os nomes dos arquivos estão corretos)
 import Home from './pages/Landing/Landing';
 import Lobby from './pages/Lobby/Lobby';
-import CreateRoom from './pages/CreateRoom/ConfigureRoom';
-import ConfiguracaoSala from './pages/CreateRoom/ConfigureRoom';
+import CreateRoom from './pages/ConfigureRoom/ConfigureRoom';
+import ConfiguracaoSala from './pages/ConfigureRoom/ConfigureRoom';
 
 function App() {
   return (
