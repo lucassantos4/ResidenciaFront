@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../../index.css";
 import './ConfigureRoom.css';
+import { createRoom } from '../../services/createRoomService';
 const ConfiguracaoSala = () => {
   const navigate = useNavigate();
   const [config, setConfig] = useState({
@@ -25,22 +26,50 @@ const ConfiguracaoSala = () => {
     custoUntEletro: 0,
     custoUntHipel: 0,
   });
-
+  const [events, setEvents] = useState([]);
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setConfig((prev) => ({
+      const { name, value } = e.target;
+      setConfig((prev) => ({
+        ...prev,
+        [name]: parseFloat(value) || 0,
+      }));
+    };
+  
+
+  const handleAddEvent = () => {
+    setEvents((prev) => [
       ...prev,
-      [name]: parseFloat(value) || 0,
-    }));
+      { round: 1, type: 'EQUIPMENT_FAILURE', description: '' },
+    ]);
   };
+
+  const handleRemoveEvent = (index) => {
+    setEvents((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEventChange = (index, field, value) => {
+    setEvents((prev) =>
+      prev.map((event, i) =>
+        i === index
+          ? { ...event, [field]: field === 'round' ? parseInt(value) : value }
+          : event
+      )
+    );
+  };
+
+
+  
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Lógica para enviar ao backend (usar serviços em /src/services)
-    console.log("Enviando configurações:", config);
-    
-    // Exemplo de envio disponível em /src/services (implemente lá)
-  };
+  e.preventDefault();
+  try {
+    const data = await createRoom(config);
+    console.log("Sala criada com sucesso:", data);
+  } catch (error) {
+    console.error("Erro ao criar sala:", error);
+    // Aqui você pode adicionar um toast ou mensagem de erro para o usuário
+  }
+};
 
   return (
     <div className="config-container">
@@ -112,10 +141,79 @@ const ConfiguracaoSala = () => {
             <label>Hipel</label>
             <input type="number" name="custoUntHipel" value={config.custoUntHipel} onChange={handleChange} />
           </section>
+
+          <section className="full-width">
+            <h2>Eventos que aconteceram na Rodada</h2>
+
+            {events.length === 0 && (
+              <p className="event-empty-message">
+                Nenhum evento configurado. Clique em "Adicionar Evento" para criar.
+              </p>
+            )}
+
+            {events.map((event, index) => (
+              <div key={index} className="event-item">
+                <div>
+                  <label>Round</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max={config.totalRounds}
+                    value={event.round}
+                    onChange={(e) => handleEventChange(index, 'round', e.target.value)}
+                    className="event-input-no-margin"
+                  />
+                </div>
+
+                <div>
+                  <label>Tipo</label>
+                  <select
+                    value={event.type}
+                    onChange={(e) => handleEventChange(index, 'type', e.target.value)}
+                    className="event-select"
+                  >
+                    <option value="EQUIPMENT_FAILURE">Falha de Equipamento</option>
+                    <option value="SYSTEM_FAILURE">Falha de Sistema</option>
+                    <option value="OTHER">Outro</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label>Descrição</label>
+                  <input
+                    type="text"
+                    placeholder="Ex: A balança quebra neste round"
+                    value={event.description}
+                    onChange={(e) => handleEventChange(index, 'description', e.target.value)}
+                    className="event-input-no-margin"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleRemoveEvent(index)}
+                  className="event-remove-button"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={handleAddEvent}
+              className="event-add-button"
+            >
+              + Adicionar Evento
+            </button>
+          </section>
+    
+
+       
         </div>
 
         <div className="form-actions">
-          <button type="submit">Salvar Configuração</button>
+          <button type="submit">Criar jogo</button>
         </div>
       </form>
     </div>
