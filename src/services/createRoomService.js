@@ -1,20 +1,16 @@
+const API = import.meta.env.VITE_API_URL || '';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
-
-export async function createRoom(config) {
-  const url = (API_BASE ? API_BASE.replace(/\/$/, '') : '') + '/rooms';
-
-  const apiKey = import.meta.env.VITE_API_KEY || localStorage.getItem('API_KEY') || null;
-
+export async function createRoom(config, events) {
+  const url = `${API}/rooms`
   const headers = {
     'Content-Type': 'application/json',
   };
-  if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
+
 
   const res = await fetch(url, {
     method: 'POST',
     headers,
-    body: JSON.stringify(config),
+    body: JSON.stringify(config, events),
   });
 
   if (!res.ok) {

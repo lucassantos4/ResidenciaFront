@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import logoCencosud from '../../assets/images/cencosud.svg'; 
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import './lobby.css'; 
 import ConfiguracaoSala from '../ConfigureRoom/ConfigureRoom';
@@ -13,6 +14,7 @@ const CencosudPinPage = () => {
     console.log("PIN inserido:", pin);
   
   };
+  const navigate = useNavigate();
 
   return (
     <div className="page-wrapper">
@@ -22,9 +24,14 @@ const CencosudPinPage = () => {
             <Link to="/"><img src={logoCencosud} alt="Cencosud Logo" className="header__logo-img" /></Link>
           </div>
           <ul className="header__menu">
-            {['Aprender','Criar'].map((item) => (
+            {[
+    { label: 'Aprender', path: '/aprender' },
+    { label: 'Criar', path: '/configuracaodesala' }
+  ].map((item) =>  (
               <li key={item} className="header__menu-item">
-                <button className="header__menu-btn" type="button">{item}</button>
+                <button
+                onClick={() => navigate(item.path)}
+                 className="header__menu-btn" type="button">{item.label}</button>
               </li>
             ))}
           </ul>
@@ -51,13 +58,11 @@ const CencosudPinPage = () => {
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
               />
+                <button className="idroom-submit" type="submit">
+                  Entrar
+                </button>
             </div>
             <div className="login__action-group">
-              <Link to={'/configuracaodesala'}>
-                <button className="idroom-submit" type="submit">
-                  Inserir
-                </button>
-              </Link>
             </div>
           </form>
         </section>
