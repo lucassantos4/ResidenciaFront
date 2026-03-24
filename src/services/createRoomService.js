@@ -1,6 +1,6 @@
 const API = import.meta.env.VITE_API_URL || '';
 
-export async function createRoom(config, events) {
+export async function createRoom(config) {
   const url = `${API}/rooms`
   const headers = {
     'Content-Type': 'application/json',
@@ -10,7 +10,7 @@ export async function createRoom(config, events) {
   const res = await fetch(url, {
     method: 'POST',
     headers,
-    body: JSON.stringify(config, events),
+    body: JSON.stringify(config),
   });
 
   if (!res.ok) {

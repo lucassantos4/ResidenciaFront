@@ -11,7 +11,8 @@
   /* Textos e Neutros */
   --color-text-dark: #3B3D40;      
   --color-text-muted: #6C757D;
-  --color-border: #DDE2E6;        
+  --color-border: #DDE2E6;   
+  --color-leave-room-red: #ed1d06;     
 
   /* Tipografia */
   --font-family-base: 'Inter', -apple-system, sans-serif; 

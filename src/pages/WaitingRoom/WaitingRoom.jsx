@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { data, useNavigate, useParams } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import '../../index.css'
 import './WaitingRoom.css'
 
-const socket = io(import.meta.env.VITE_API_URL)
 
 const WaitingRoom = () => {
   const navigate = useNavigate()
   const { code } = useParams()
 
   const role = localStorage.getItem('role')
-  const facilitatorToken = localStorage.getItem('facilitatorToken')
   const companyId = localStorage.getItem('companyId')
+    const facilitadorToken = localStorage.getItem('facilitadorToken')
   const roomCode = code
 
   const [companies, setCompanies] = useState([])
   const [connected, setConnected] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [showCancelRoomModal, setShowCancelRoomModal] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
 
   useEffect(() => {
+    const socket = io(import.meta.env.VITE_API_URL)
     // busca lista inicial de empresas
     fetch(`${import.meta.env.VITE_API_URL}/companies/${roomCode}`)
       .then(res => res.json())
@@ -50,30 +54,63 @@ const WaitingRoom = () => {
   }
 
   const handleCancelRoom = async () => {
+    setShowCancelRoomModal(true)
+  }
+
+  const handleConfirmCancelRoom = async () => {
+    console.log(facilitadorToken)
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/rooms/${roomCode}/cancel`, {
         method: 'PATCH',
         headers: {
-          'x-facilitator-token': facilitatorToken,
+          'x-facilitador-token': `${facilitadorToken}`,
         },
       })
-      localStorage.clear()
-      navigate('/')
+      
+      setShowCancelRoomModal(false)
+      setSuccessMessage('Sala cancelada com sucesso!')
+      setShowSuccessModal(true)
+      
+      setTimeout(() => {
+        localStorage.clear()
+        navigate('/lobby')
+      }, 2000)
     } catch (error) {
       console.error('Erro ao cancelar sala:', error)
+      setShowCancelRoomModal(false)
+      alert('Erro ao cancelar sala')
     }
   }
 
+  const handleCancelCancelRoom = () => {
+    setShowCancelRoomModal(false)
+  }
+
   const handleLeaveRoom = async () => {
+    setShowConfirmModal(true)
+  }
+
+  const handleConfirmLeave = async (e) => {
+    e.preventDefault()
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/companies/${companyId}/leave`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/companies/${companyId}/leave`, {
         method: 'DELETE',
       })
+      console.log('Resposta ao sair da sala:', response)
+      if (!response.ok) {
+        console.error(`Erro ao sair: ${response.status}`)
+      }
+      
       localStorage.clear()
-      navigate('/')
+      navigate('/lobby')
     } catch (error) {
       console.error('Erro ao sair da sala:', error)
+      setShowConfirmModal(false)
     }
+  }
+
+  const handleCancelLeave = () => {
+    setShowConfirmModal(false)
   }
 
   const getInitials = (name) => {
@@ -85,7 +122,6 @@ const WaitingRoom = () => {
       .slice(0, 2)
   }
 
-  const isFacilitator = role === 'facilitator'
 
   return (
     <div className="waiting-container">
@@ -129,9 +165,9 @@ const WaitingRoom = () => {
         </div>
 
         <div className="waiting-card">
-          <h2>{isFacilitator ? 'Instruções para o Facilitador' : 'Aguarde o início'}</h2>
+          <h2>{facilitadorToken !=null ? 'Instruções para o Facilitador' : 'Aguarde o início'}</h2>
           <div className="instructions-list">
-            {isFacilitator ? (
+            {facilitadorToken !=null ? (
               <>
                 <div className="instruction-item">
                   <div className="instruction-number">1</div>
@@ -167,7 +203,7 @@ const WaitingRoom = () => {
       </div>
 
       <div className="waiting-actions">
-        {isFacilitator ? (
+        {facilitadorToken !=null ? (
           <>
             <button className="btn-cancel" onClick={handleCancelRoom}>
               Cancelar Sala
@@ -186,6 +222,62 @@ const WaitingRoom = () => {
           </button>
         )}
       </div>
+
+      {showConfirmModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Sair da Sala?</h2>
+            <p>Tem certeza que deseja sair da sala? Você precisará inserir o código novamente para entrar.</p>
+            <div className="modal-actions">
+              <button 
+                className="btn-cancel-modal" 
+                onClick={handleCancelLeave}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn-confirm-leave" 
+                onClick={handleConfirmLeave}
+              >
+                Sair
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCancelRoomModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Cancelar Sala?</h2>
+            <p>Tem certeza que deseja cancelar a sala? Todos os participantes serão desconectados.</p>
+            <div className="modal-actions">
+              <button 
+                className="btn-cancel-modal" 
+                onClick={handleCancelCancelRoom}
+              >
+                Não, voltar
+              </button>
+              <button 
+                className="btn-confirm-leave" 
+                onClick={handleConfirmCancelRoom}
+              >
+                Sim, cancelar sala
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSuccessModal && (
+        <div className="modal-overlay">
+          <div className="modal-content modal-success">
+            <div className="success-icon">✓</div>
+            <h2>Sucesso!</h2>
+            <p>{successMessage}</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
