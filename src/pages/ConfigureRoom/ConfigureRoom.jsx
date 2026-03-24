@@ -63,8 +63,14 @@ const ConfiguracaoSala = () => {
   const handleSubmit = async (e) => {
   e.preventDefault();
   try {
-    const data = await createRoom(config);
-    console.log("Sala criada com sucesso:", data);
+    console.log("Eventos enviados para criação da sala:", events);
+    const data = await createRoom({
+      ...config, 
+      events});
+    localStorage.setItem('facilitadorToken', data.room.facilitatorToken);
+    navigate(`/waitingroom/${data.room.code}`);
+    
+    
   } catch (error) {
     console.error("Erro ao criar sala:", error);
     // Aqui você pode adicionar um toast ou mensagem de erro para o usuário

@@ -12,12 +12,13 @@ const CencosudPinPage = () => {
   const [showAdditionalInputs, setShowAdditionalInputs] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [playerName, setPlayerName] = useState('');
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try{
-      const data = joinRoom(pin, companyName, playerName);
+      const data =  await joinRoom(pin, companyName, playerName);
       console.log("Entrou na sala com sucesso:", data);
-      localStorage.setItem('companyId', data.id);
+      localStorage.setItem('companyId', data.company.id);
+      console.log('Company ID armazenado:', localStorage.getItem('companyId'));
       navigate(`/waitingroom/${pin}`);
     } catch (err) {
       console.error("Erro ao entrar na sala:", err);
