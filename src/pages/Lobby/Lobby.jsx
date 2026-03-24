@@ -5,16 +5,32 @@ import { useNavigate } from 'react-router-dom';
 
 import './lobby.css'; 
 import ConfiguracaoSala from '../ConfigureRoom/ConfigureRoom';
+import { joinRoom } from '../../services/joinRoomService';
 
 const CencosudPinPage = () => {
   const [pin, setPin] = useState('');
-
+  const [showAdditionalInputs, setShowAdditionalInputs] = useState(false);
+  const [companyName, setCompanyName] = useState('');
+  const [playerName, setPlayerName] = useState('');
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("PIN inserido:", pin);
-  
+    try{
+      const data = joinRoom(pin, companyName, playerName);
+      console.log("Entrou na sala com sucesso:", data);
+      localStorage.setItem('companyId', data.id);
+      navigate(`/waitingroom/${pin}`);
+    } catch (err) {
+      console.error("Erro ao entrar na sala:", err);
+      alert("Falha ao entrar na sala. Verifique o PIN e tente novamente.");
+    }
   };
   const navigate = useNavigate();
+  
+ const handlePinChange = (e) => {
+    const value = e.target.value;
+    setPin(value);
+    setShowAdditionalInputs(value.length === 6); // Mostra quando PIN tiver 6 dígitos
+  };
 
   return (
     <div className="page-wrapper">
@@ -56,11 +72,34 @@ const CencosudPinPage = () => {
                 placeholder="PIN de acesso" 
                 maxLength="6"
                 value={pin}
-                onChange={(e) => setPin(e.target.value)}
+                onChange={handlePinChange}
               />
-                <button className="idroom-submit" type="submit">
-                  Entrar
-                </button>
+                {showAdditionalInputs && (
+                <div className="login__additional-inputs">
+                  <input 
+                    className="login__input" 
+                    type="text" 
+                    placeholder="Nome da Empresa" 
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                  />
+                  <input 
+                    className="login__input" 
+                    type="text" 
+                    placeholder="Seu Nome" 
+                    value={playerName}
+                    onChange={(e) => setPlayerName(e.target.value)}
+                  />
+                </div>
+              )}
+
+              <button 
+                className="idroom-submit" 
+                type="submit"
+                disabled={pin.length !== 6 || (showAdditionalInputs && (!companyName || !playerName))}
+              >
+                Entrar
+              </button>
             </div>
             <div className="login__action-group">
             </div>
