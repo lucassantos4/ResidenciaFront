@@ -7,6 +7,7 @@ import Home from './pages/Landing/Landing';
 import Lobby from './pages/Lobby/Lobby';
 import CreateRoom from './pages/ConfigureRoom/ConfigureRoom';
 import ConfiguracaoSala from './pages/ConfigureRoom/ConfigureRoom';
+import WaitingRoom from './pages/WaitingRoom/WaitingRoom';
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
         <Route path="/lobby" element={<Lobby />} />
         {/* Rota para configuração de sala */}
         <Route path="/configuracaodesala" element={<ConfiguracaoSala />} />
+        {/* Rota para sala de espera */}
+        <Route path="/waitingroom/:code" element={<WaitingRoom />} />
       </Routes>
     </BrowserRouter>
   );
