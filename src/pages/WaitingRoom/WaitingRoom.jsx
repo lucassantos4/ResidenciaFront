@@ -11,7 +11,7 @@ const WaitingRoom = () => {
 
   const role = localStorage.getItem('role')
   const companyId = localStorage.getItem('companyId')
-    const facilitadorToken = localStorage.getItem('facilitadorToken')
+  const facilitadorToken = localStorage.getItem('facilitadorToken')
   const roomCode = code
 
   const [companies, setCompanies] = useState([])
@@ -30,6 +30,10 @@ const WaitingRoom = () => {
       .catch(err => console.error('Erro ao buscar empresas:', err))
 
     // conecta no socket e entra na sala
+    socket.on('room_cancelled', () => {
+      localStorage.clear()
+      navigate('/lobby')
+    })
     socket.emit('join_room', roomCode)
     setConnected(true)
 
@@ -45,6 +49,7 @@ const WaitingRoom = () => {
       socket.off('companies_updated')
       socket.off('connect')
       socket.off('disconnect')
+      socket.off('room_cancelled')
     }
   }, [roomCode])
 
