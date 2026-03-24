@@ -21,24 +21,6 @@ html, body, #root {
   scroll-behavior: smooth !important;
 }
 
-:root {
-  /* Paleta Cencosud & Identidade do Projeto */
-  --color-primary-blue: #0B5A97;   
-  --color-action-orange: #FF690A;  
-  --color-action-orange-hover: #E85D00; 
-  --color-background-light: #F8F9FA; 
-  --color-card-white: #FFFFFF;
-  
-  /* Textos e Neutros */
-  --color-text-dark: #3B3D40;      
-  --color-text-muted: #6C757D;
-  --color-border: #DDE2E6;        
-
-  /* Tipografia */
-  --font-family-base: 'Inter', -apple-system, sans-serif; 
-}
-
-
 * {
   box-sizing: border-box;
   margin: 0;
