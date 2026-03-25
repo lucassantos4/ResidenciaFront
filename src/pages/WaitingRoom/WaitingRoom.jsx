@@ -3,11 +3,15 @@ import { data, useNavigate, useParams } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import '../../index.css'
 import './WaitingRoom.css'
+import Modal from '../../components/Modal'
+import { useToast } from '../../components/Toast.jsx'
+
 
 
 const WaitingRoom = () => {
   const navigate = useNavigate()
   const { code } = useParams()
+  const { showToast } = useToast()
 
   const role = localStorage.getItem('role')
   const companyId = localStorage.getItem('companyId')
@@ -20,6 +24,9 @@ const WaitingRoom = () => {
   const [showCancelRoomModal, setShowCancelRoomModal] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [showModal, setShowModal] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [showModalLeave, setShowModalLeave] = useState(false)
 
   useEffect(() => {
     const socket = io(import.meta.env.VITE_API_URL)
@@ -29,8 +36,11 @@ const WaitingRoom = () => {
       .then(data => setCompanies(data))
       .catch(err => console.error('Erro ao buscar empresas:', err))
 
-    // conecta no socket e entra na sala
+    
     socket.on('room_cancelled', () => {
+      if(facilitadorToken === null) {
+      showToast('Sala cancelada pelo facilitador', 'warning')
+      }
       localStorage.clear()
       navigate('/lobby')
     })
@@ -58,12 +68,9 @@ const WaitingRoom = () => {
     console.log('iniciar jogo')
   }
 
-  const handleCancelRoom = async () => {
-    setShowCancelRoomModal(true)
-  }
 
   const handleConfirmCancelRoom = async () => {
-    console.log(facilitadorToken)
+    setIsLoading(true)
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/rooms/${roomCode}/cancel`, {
         method: 'PATCH',
@@ -71,31 +78,23 @@ const WaitingRoom = () => {
           'x-facilitador-token': `${facilitadorToken}`,
         },
       })
-      
-      setShowCancelRoomModal(false)
       setSuccessMessage('Sala cancelada com sucesso!')
-      setShowSuccessModal(true)
-      
       setTimeout(() => {
         localStorage.clear()
         navigate('/lobby')
-      }, 2000)
+      }, 1200)
     } catch (error) {
       console.error('Erro ao cancelar sala:', error)
       setShowCancelRoomModal(false)
       alert('Erro ao cancelar sala')
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handleCancelCancelRoom = () => {
-    setShowCancelRoomModal(false)
-  }
-
-  const handleLeaveRoom = async () => {
-    setShowConfirmModal(true)
-  }
-
+ 
   const handleConfirmLeave = async (e) => {
+    setIsLoading(true)
     e.preventDefault()
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/companies/${companyId}/leave`, {
@@ -111,13 +110,10 @@ const WaitingRoom = () => {
     } catch (error) {
       console.error('Erro ao sair da sala:', error)
       setShowConfirmModal(false)
+    } finally {
+      setIsLoading(false)
     }
   }
-
-  const handleCancelLeave = () => {
-    setShowConfirmModal(false)
-  }
-
   const getInitials = (name) => {
     return name
       .split(' ')
@@ -210,7 +206,7 @@ const WaitingRoom = () => {
       <div className="waiting-actions">
         {facilitadorToken !=null ? (
           <>
-            <button className="btn-cancel" onClick={handleCancelRoom}>
+            <button className="btn-cancel" onClick={() => setShowModal(true)}>
               Cancelar Sala
             </button>
             <button
@@ -222,67 +218,50 @@ const WaitingRoom = () => {
             </button>
           </>
         ) : (
-          <button className="btn-leave" onClick={handleLeaveRoom}>
+          <button className="btn-leave" onClick={() => setShowModalLeave(true)}>
             Sair da Sala
           </button>
         )}
       </div>
+      <Modal 
+      isOpen= {showModalLeave}
+      type={isLoading ? "loading" : "leave"}
+      title={isLoading ? "Saindo da Sala..." : "Confirmar Saída"}
+      message="Tem certeza que deseja sair da sala? Você poderá entrar novamente usando o código."
+      confirmText="Sair da Sala"
+      cancelText="Não, voltar"
+      onConfirm={(e) => {
+            if (!isLoading) { 
+              handleConfirmLeave(e);
+            }
+          }}
+          onCancel={() => {
+            if (!isLoading) { 
+              setShowModalLeave(false);
+            }
+          }}
+  />
+     <Modal 
+    isOpen={showModal}
+    type={isLoading ? "loading" : "warning"}
+    title={isLoading ? "Cancelando Sala..." : "Confirmar Cancelamento"}
+    message="Tem certeza que deseja cancelar a sala? Todos os participantes serão desconectados."
+    confirmText="Cancelar Sala"
+    cancelText="Não, voltar"
+    onConfirm={() => {
+          if (!isLoading) { 
+            handleConfirmCancelRoom();
+          }
+        }}
+        onCancel={() => {
+          if (!isLoading) { 
+            setShowModal(false);
+          }
+        }}
+  />
 
-      {showConfirmModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>Sair da Sala?</h2>
-            <p>Tem certeza que deseja sair da sala? Você precisará inserir o código novamente para entrar.</p>
-            <div className="modal-actions">
-              <button 
-                className="btn-cancel-modal" 
-                onClick={handleCancelLeave}
-              >
-                Cancelar
-              </button>
-              <button 
-                className="btn-confirm-leave" 
-                onClick={handleConfirmLeave}
-              >
-                Sair
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
 
-      {showCancelRoomModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>Cancelar Sala?</h2>
-            <p>Tem certeza que deseja cancelar a sala? Todos os participantes serão desconectados.</p>
-            <div className="modal-actions">
-              <button 
-                className="btn-cancel-modal" 
-                onClick={handleCancelCancelRoom}
-              >
-                Não, voltar
-              </button>
-              <button 
-                className="btn-confirm-leave" 
-                onClick={handleConfirmCancelRoom}
-              >
-                Sim, cancelar sala
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showSuccessModal && (
-        <div className="modal-overlay">
-          <div className="modal-content modal-success">
-            <div className="success-icon">✓</div>
-            <h2>Sucesso!</h2>
-            <p>{successMessage}</p>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
