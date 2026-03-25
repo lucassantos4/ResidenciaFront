@@ -129,9 +129,12 @@
   width: 100%;
   border-top: 1px solid var(--color-border);
   padding-top: 20px;
+  justify-content: center; /* centraliza os botões */
 }
 
+
 .modal-btn {
+    flex: 1;
   background-color: var(--color-action-orange);
   color: #fff;
   border: none;
@@ -192,5 +195,10 @@
 
   .modal-actions {
     flex-direction: column;
+    align-items: stretch; /* ✅ Botões ocupam toda largura */
+  }
+
+  .modal-btn {
+    width: 100%;
   }
 }

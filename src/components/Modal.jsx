@@ -1,4 +1,4 @@
-import { CheckCircle,AlertTriangle, Info, Loader2, Trash2, X } from 'lucide-react'
+import { CheckCircle,AlertTriangle, Info, Loader2, LogOut, X } from 'lucide-react'
 import '../assets/css/Modal.css'
 
 const MODAL_CONFIG = {
@@ -7,8 +7,8 @@ const MODAL_CONFIG = {
     iconClass: 'modal-icon-confirm',
     btnClass: 'modal-btn',
   },
-  delete: {
-    icon: Trash2,
+  leave: {
+    icon: LogOut,
     iconClass: 'modal-icon-confirm',
     btnClass: 'modal-btn',
   },
