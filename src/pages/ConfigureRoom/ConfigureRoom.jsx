@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import "../../index.css";
 import './ConfigureRoom.css';
 import { createRoom } from '../../services/createRoomService';
+import Modal from '../../components/Modal';
+
 const ConfiguracaoSala = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
+
   const navigate = useNavigate();
   const [config, setConfig] = useState({
     caixa: 700000,
@@ -56,13 +61,18 @@ const ConfiguracaoSala = () => {
       )
     );
   };
+  
 
 
   
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+  if (e && e.preventDefault) {
+    e.preventDefault();
+  }
+  setIsLoading(true); // Inicia o loading
   try {
+    console.log("Configurações enviadas para criação da sala:", config);
     console.log("Eventos enviados para criação da sala:", events);
     const data = await createRoom({
       ...config, 
@@ -74,11 +84,15 @@ const ConfiguracaoSala = () => {
   } catch (error) {
     console.error("Erro ao criar sala:", error);
     // Aqui você pode adicionar um toast ou mensagem de erro para o usuário
+  } finally {
+    setIsLoading(false); // Encerra o loading
   }
 };
 
   return (
+    
     <div className="config-container">
+      
       <header>
         <button type="button" className="back-button" onClick={() => navigate(-1)} aria-label="Voltar">
           ← Voltar
@@ -219,9 +233,32 @@ const ConfiguracaoSala = () => {
         </div>
 
         <div className="form-actions">
-          <button type="submit">Criar jogo</button>
+          <button 
+          type='button'
+          className='menu-btn'
+          onClick={() => setShowModal(true)}>
+            Criar jogo
+            </button>
         </div>
       </form>
+      <Modal
+    isOpen={showModal}
+    type={isLoading ? "loading" : "confirm"} // ✅ Muda para loading
+    title={isLoading ? "Criando Sala..." : "Confirmar Configurações"}
+    message="Tem certeza que deseja criar a sala com essas configurações?"
+    confirmText="Sim, criar sala"
+    cancelText="Não, voltar"
+    onConfirm={() => {
+          if (!isLoading) { // ✅ Só faz algo se não estiver loading
+            handleSubmit();
+          }
+        }}
+        onCancel={() => {
+          if (!isLoading) { // ✅ Não deixa cancelar enquanto carrega
+            setShowModal(false);
+          }
+        }}
+  />
     </div>
   );
 };
