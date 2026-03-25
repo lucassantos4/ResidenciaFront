@@ -1,0 +1,196 @@
+/* ========================================
+   MODAL — Padrão do Projeto
+   ======================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(59, 61, 64, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: modalFadeIn 0.15s ease;
+}
+
+.modal-box {
+  background: var(--color-card-white);
+  border-radius: 8px;
+  padding: 32px;
+  max-width: 420px;
+  width: 90%;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: modalSlideUp 0.2s ease;
+  position: relative;
+}
+
+/* Botão X de fechar */
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-action-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.modal-close:hover {
+  background: var(--color-background-light);
+  color: var(--color-action-orange-hover);
+}
+
+/* ========================================
+   Ícone
+   ======================================== */
+
+.modal-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+/* confirm → verde */
+.modal-icon-confirm {
+  color: var(--color-primary-blue)
+}
+
+/* delete → vermelho */
+.modal-icon-delete {
+  background-color: rgba(237, 29, 6, 0.08);
+  color: var(--color-leave-room-red);
+}
+
+/* warning → laranja */
+.modal-icon-warning {
+  background-color: rgba(255, 105, 10, 0.08);
+  color: var(--color-action-orange);
+}
+
+/* info → azul */
+.modal-icon-info {
+  background-color: rgba(11, 90, 151, 0.08);
+  color: var(--color-primary-blue);
+}
+
+/* loading → azul */
+.modal-icon-loading {
+  background-color: rgba(11, 90, 151, 0.08);
+  color: var(--color-primary-blue);
+}
+
+/* Animação do ícone de loading */
+.modal-spin-icon {
+  animation: modalSpin 1s linear infinite;
+}
+
+/* ========================================
+   Textos
+   ======================================== */
+
+.modal-title {
+  color: var(--color-primary-blue);
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: var(--font-family-base);
+  margin-bottom: 10px;
+}
+
+.modal-message {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-family: var(--font-family-base);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* ========================================
+   Botões
+   ======================================== */
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  border-top: 1px solid var(--color-border);
+  padding-top: 20px;
+}
+
+.modal-btn {
+  background-color: var(--color-action-orange);
+  color: #fff;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(255, 105, 10, 0.2);
+  transition: background-color 0.2s, transform 0.1s;
+}
+.modal-btn:hover {
+  background-color: var(--color-action-orange-hover);
+}
+
+.modal-btn:active {
+  transform: translateY(1px);
+}
+
+/* Cancelar */
+.modal-btn-cancel {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.modal-btn-cancel:hover {
+  background: var(--color-background-light);
+}
+
+
+/* ========================================
+   Animações
+   ======================================== */
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes modalSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Responsivo
+   ======================================== */
+
+@media (max-width: 768px) {
+  .modal-box {
+    padding: 24px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+}

@@ -233,6 +233,20 @@ button[type="submit"]:active {
 .full-width {
   grid-column: 1 / -1;
 }
+.menu-btn {
+    background: transparent;
+    border: 1px solid var(--color-action-orange);
+    color: var(--color-action-orange);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.menu-btn:hover {
+    background: var(--color-action-orange-hover);
+    color: #fff;
+}
 
 @media (max-width: 768px) {
   .event-item {
