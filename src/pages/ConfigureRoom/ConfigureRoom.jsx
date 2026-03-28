@@ -30,6 +30,12 @@ const ConfiguracaoSala = () => {
     custoUntMercearia: 0,
     custoUntEletro: 0,
     custoUntHipel: 0,
+    capexSeguranca: 0,
+    capexBalancaFreezer: 0,
+    capexRedes: 0,
+    capexSites: 0,
+    capexSelfCheckout: 0,
+    capexMelhoriaContinua: 0,
   });
   const [events, setEvents] = useState([]);
   const handleChange = (e) => {
@@ -61,6 +67,14 @@ const ConfiguracaoSala = () => {
       )
     );
   };
+
+  const totalCapex =
+    config.capexSeguranca +
+    config.capexBalancaFreezer +
+    config.capexRedes +
+    config.capexSites +
+    config.capexSelfCheckout +
+    config.capexMelhoriaContinua;
   
 
 
@@ -213,6 +227,40 @@ const ConfiguracaoSala = () => {
                 <div className="input-group">
                   <label>Hipel</label>
                   <input type="number" name="custoUntHipel" value={config.custoUntHipel} onChange={handleChange} />
+                </div>
+              </div>
+            </section>
+
+            <section className="config-section">
+              <h3 className="section-subtitle">CAPEX</h3>
+              <div className="input-grid">
+                <div className="input-group">
+                  <label>Segurança</label>
+                  <input type="number" name="capexSeguranca" value={config.capexSeguranca} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Balança / Freezer</label>
+                  <input type="number" name="capexBalancaFreezer" value={config.capexBalancaFreezer} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Redes</label>
+                  <input type="number" name="capexRedes" value={config.capexRedes} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Sites</label>
+                  <input type="number" name="capexSites" value={config.capexSites} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Self Checkout</label>
+                  <input type="number" name="capexSelfCheckout" value={config.capexSelfCheckout} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Melhoria Contínua</label>
+                  <input type="number" name="capexMelhoriaContinua" value={config.capexMelhoriaContinua} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Total CAPEX</label>
+                  <input type="number" value={totalCapex} readOnly />
                 </div>
               </div>
             </section>
