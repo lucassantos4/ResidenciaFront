@@ -5,14 +5,15 @@ import ScrollToTop from "./components/ScrollToTop";
 // Importe suas páginas (verifique se os nomes dos arquivos estão corretos)
 import Home from './pages/Landing/Landing';
 import Lobby from './pages/Lobby/Lobby';
-import CreateRoom from './pages/ConfigureRoom/ConfigureRoom';
 import ConfiguracaoSala from './pages/ConfigureRoom/ConfigureRoom';
 import WaitingRoom from './pages/WaitingRoom/WaitingRoom';
+import CompanyConfigRoom from './pages/CompanyConfigRoom/CompanyConfigRoom';
+
 
 function App() {
   return (
     <BrowserRouter>
-      {/* O ScrollToTop monitora a URL e "puxa" a tela para cima suavemente */}
+      
       <ScrollToTop /> 
       
       <Routes>
@@ -25,6 +26,7 @@ function App() {
         <Route path="/configuracaodesala" element={<ConfiguracaoSala />} />
         {/* Rota para sala de espera */}
         <Route path="/waitingroom/:code" element={<WaitingRoom />} />
+        <Route path="/config/:companyId" element={<CompanyConfigRoom />} />
       </Routes>
     </BrowserRouter>
   );

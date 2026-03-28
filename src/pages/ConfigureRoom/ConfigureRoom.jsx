@@ -92,173 +92,220 @@ const ConfiguracaoSala = () => {
   return (
     
     <div className="config-container">
-      
-      <header>
-        <button type="button" className="back-button" onClick={() => navigate(-1)} aria-label="Voltar">
-          ← Voltar
-        </button>
-        <h1>Configuração da Sala</h1>
-      </header>
+      {/* Sidebar decorativo para manter semântica visual */}
+      <aside className="config-sidebar">
+        <div className="sidebar-top">
+          <h1 className="config-title">Configuração<br />da Sala</h1>
+          <span className="config-title-accent" />
+          <p className="config-subtitle">Defina os parâmetros e eventos para a sala.</p>
+        </div>
+      </aside>
 
-      <form onSubmit={handleSubmit}>
-        <div className="grid-config">
-          <section>
-            <h2>Geral & Financeiro</h2>
-            <label>Caixa Inicial</label>
-            <input type="number" name="caixa" value={config.caixa} onChange={handleChange} />
-            
-            <label>Taxa de Juros (%)</label>
-            <input type="number" name="juros" value={config.juros} onChange={handleChange} />
-            
-            <label>Total de Rounds</label>
-            <input type="number" name="totalRounds" value={config.totalRounds} onChange={handleChange} />
-          </section>
-
-          <section>
-            <h2>Quebras (%)</h2>
-            <label>Perecíveis</label>
-            <input type="number" name="quebrasPereceiveis" value={config.quebrasPereceiveis} onChange={handleChange} step="0.1" />
-            <label>Mercearia</label>
-            <input type="number" name="quebrasMercearia" value={config.quebrasMercearia} onChange={handleChange} step="0.1" />
-            <label>Eletro</label>
-            <input type="number" name="quebrasEletro" value={config.quebrasEletro} onChange={handleChange} step="0.1" />
-            <label>Hipel</label>
-            <input type="number" name="quebrasHipel" value={config.quebrasHipel} onChange={handleChange} step="0.1" />
-          </section>
-
-          <section>
-            <h2>Aging</h2>
-            <label>Eletro</label>
-            <input type="number" name="agingEletro" value={config.agingEletro} onChange={handleChange} step="0.1" />
-            <label>Hipel</label>
-            <input type="number" name="agingHipel" value={config.agingHipel} onChange={handleChange} step="0.1" />
-            <label>Mercearia</label>
-            <input type="number" name="agingMercearia" value={config.agingMercearia} onChange={handleChange} step="0.1" />
-            <label>Perecíveis</label>
-            <input type="number" name="agingPereceiveis" value={config.agingPereceiveis} onChange={handleChange} step="0.1" />
-          </section>
-
-          <section>
-            <h2>Impostos (%)</h2>
-            <label>Perecíveis</label>
-            <input type="number" name="impostoPereceiveis" value={config.impostoPereceiveis} onChange={handleChange} />
-            <label>Mercearia</label>
-            <input type="number" name="impostoMercearia" value={config.impostoMercearia} onChange={handleChange} />
-            <label>Eletro</label>
-            <input type="number" name="impostoEletro" value={config.impostoEletro} onChange={handleChange} />
-            <label>Hipel</label>
-            <input type="number" name="impostoHipel" value={config.impostoHipel} onChange={handleChange} />
-          </section>
-
-          <section>
-            <h2>Custo Unitário</h2>
-            <label>Perecíveis</label>
-            <input type="number" name="custoUntPereceiveis" value={config.custoUntPereceiveis} onChange={handleChange} />
-            <label>Mercearia</label>
-            <input type="number" name="custoUntMercearia" value={config.custoUntMercearia} onChange={handleChange} />
-            <label>Eletro</label>
-            <input type="number" name="custoUntEletro" value={config.custoUntEletro} onChange={handleChange} />
-            <label>Hipel</label>
-            <input type="number" name="custoUntHipel" value={config.custoUntHipel} onChange={handleChange} />
-          </section>
-
-          <section className="full-width">
-            <h2>Eventos que aconteceram na Rodada</h2>
-
-            {events.length === 0 && (
-              <p className="event-empty-message">
-                Nenhum evento configurado. Clique em "Adicionar Evento" para criar.
-              </p>
-            )}
-
-            {events.map((event, index) => (
-              <div key={index} className="event-item">
-                <div>
-                  <label>Round</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max={config.totalRounds}
-                    value={event.round}
-                    onChange={(e) => handleEventChange(index, 'round', e.target.value)}
-                    className="event-input-no-margin"
-                  />
+      <div className="config-main">
+        <div className="config-main-header">
+          <button type="button" className="back-button" onClick={() => navigate(-1)} aria-label="Voltar">
+            ← Voltar
+          </button>
+          <h2 className="main-title">Configuração da Sala</h2>
+          <p className="main-description">Preencha todos os campos e confirme para criar a sala.</p>
+        </div>
+        <div className="config-content">
+          <form onSubmit={handleSubmit}>
+            <section className="config-section">
+              <h3 className="section-subtitle">Geral &amp; Financeiro</h3>
+              <div className="input-grid">
+                <div className="input-group">
+                  <label>Caixa Inicial</label>
+                  <input type="number" name="caixa" value={config.caixa} onChange={handleChange} />
                 </div>
-
-                <div>
-                  <label>Tipo</label>
-                  <select
-                    value={event.type}
-                    onChange={(e) => handleEventChange(index, 'type', e.target.value)}
-                    className="event-select"
-                  >
-                    <option value="EQUIPMENT_FAILURE">Falha de Equipamento</option>
-                    <option value="SYSTEM_FAILURE">Falha de Sistema</option>
-                    <option value="OTHER">Outro</option>
-                  </select>
+                <div className="input-group">
+                  <label>Taxa de Juros (%)</label>
+                  <input type="number" name="juros" value={config.juros} onChange={handleChange} />
                 </div>
-
-                <div>
-                  <label>Descrição</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: A balança quebra neste round"
-                    value={event.description}
-                    onChange={(e) => handleEventChange(index, 'description', e.target.value)}
-                    className="event-input-no-margin"
-                  />
+                <div className="input-group">
+                  <label>Total de Rounds</label>
+                  <input type="number" name="totalRounds" value={config.totalRounds} onChange={handleChange} />
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleRemoveEvent(index)}
-                  className="event-remove-button"
-                >
-                  ✕
-                </button>
               </div>
-            ))}
+            </section>
+
+            <section className="config-section">
+              <h3 className="section-subtitle">Quebras (%)</h3>
+              <div className="input-grid">
+                <div className="input-group">
+                  <label>Perecíveis</label>
+                  <input type="number" name="quebrasPereceiveis" value={config.quebrasPereceiveis} onChange={handleChange} step="0.1" />
+                </div>
+                <div className="input-group">
+                  <label>Mercearia</label>
+                  <input type="number" name="quebrasMercearia" value={config.quebrasMercearia} onChange={handleChange} step="0.1" />
+                </div>
+                <div className="input-group">
+                  <label>Eletro</label>
+                  <input type="number" name="quebrasEletro" value={config.quebrasEletro} onChange={handleChange} step="0.1" />
+                </div>
+                <div className="input-group">
+                  <label>Hipel</label>
+                  <input type="number" name="quebrasHipel" value={config.quebrasHipel} onChange={handleChange} step="0.1" />
+                </div>
+              </div>
+            </section>
+
+            <section className="config-section">
+              <h3 className="section-subtitle">Aging</h3>
+              <div className="input-grid">
+                <div className="input-group">
+                  <label>Eletro</label>
+                  <input type="number" name="agingEletro" value={config.agingEletro} onChange={handleChange} step="0.1" />
+                </div>
+                <div className="input-group">
+                  <label>Hipel</label>
+                  <input type="number" name="agingHipel" value={config.agingHipel} onChange={handleChange} step="0.1" />
+                </div>
+                <div className="input-group">
+                  <label>Mercearia</label>
+                  <input type="number" name="agingMercearia" value={config.agingMercearia} onChange={handleChange} step="0.1" />
+                </div>
+                <div className="input-group">
+                  <label>Perecíveis</label>
+                  <input type="number" name="agingPereceiveis" value={config.agingPereceiveis} onChange={handleChange} step="0.1" />
+                </div>
+              </div>
+            </section>
+
+            <section className="config-section">
+              <h3 className="section-subtitle">Impostos (%)</h3>
+              <div className="input-grid">
+                <div className="input-group">
+                  <label>Perecíveis</label>
+                  <input type="number" name="impostoPereceiveis" value={config.impostoPereceiveis} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Mercearia</label>
+                  <input type="number" name="impostoMercearia" value={config.impostoMercearia} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Eletro</label>
+                  <input type="number" name="impostoEletro" value={config.impostoEletro} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Hipel</label>
+                  <input type="number" name="impostoHipel" value={config.impostoHipel} onChange={handleChange} />
+                </div>
+              </div>
+            </section>
+
+            <section className="config-section">
+              <h3 className="section-subtitle">Custo Unitário</h3>
+              <div className="input-grid">
+                <div className="input-group">
+                  <label>Perecíveis</label>
+                  <input type="number" name="custoUntPereceiveis" value={config.custoUntPereceiveis} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Mercearia</label>
+                  <input type="number" name="custoUntMercearia" value={config.custoUntMercearia} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Eletro</label>
+                  <input type="number" name="custoUntEletro" value={config.custoUntEletro} onChange={handleChange} />
+                </div>
+                <div className="input-group">
+                  <label>Hipel</label>
+                  <input type="number" name="custoUntHipel" value={config.custoUntHipel} onChange={handleChange} />
+                </div>
+              </div>
+            </section>
+
+            <section className="config-section">
+              <h3 className="section-subtitle">Eventos que aconteceram na Rodada</h3>
+              {events.length === 0 && (
+                <p className="event-empty-message">
+                  Nenhum evento configurado. Clique em "Adicionar Evento" para criar.
+                </p>
+              )}
+              {events.map((event, index) => (
+                <div key={index} className="event-item">
+                  <div>
+                    <label>Round</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max={config.totalRounds}
+                      value={event.round}
+                      onChange={(e) => handleEventChange(index, 'round', e.target.value)}
+                      className="event-input-no-margin"
+                    />
+                  </div>
+                  <div>
+                    <label>Tipo</label>
+                    <select
+                      value={event.type}
+                      onChange={(e) => handleEventChange(index, 'type', e.target.value)}
+                      className="event-select"
+                    >
+                      <option value="EQUIPMENT_FAILURE">Falha de Equipamento</option>
+                      <option value="SYSTEM_FAILURE">Falha de Sistema</option>
+                      <option value="OTHER">Outro</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label>Descrição</label>
+                    <input
+                      type="text"
+                      placeholder="Ex: A balança quebra neste round"
+                      value={event.description}
+                      onChange={(e) => handleEventChange(index, 'description', e.target.value)}
+                      className="event-input-no-margin"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveEvent(index)}
+                    className="event-remove-button"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={handleAddEvent}
+                className="event-add-button"
+              >
+                + Adicionar Evento
+              </button>
+            </section>
 
             <button
               type="button"
-              onClick={handleAddEvent}
-              className="event-add-button"
+              className="btn-confirm"
+              onClick={() => setShowModal(true)}
+              style={{ marginTop: 24 }}
             >
-              + Adicionar Evento
+              Criar jogo
             </button>
-          </section>
-    
-
-       
+          </form>
         </div>
-
-        <div className="form-actions">
-          <button 
-          type='button'
-          className='menu-btn'
-          onClick={() => setShowModal(true)}>
-            Criar jogo
-            </button>
-        </div>
-      </form>
+      </div>
       <Modal
-    isOpen={showModal}
-    type={isLoading ? "loading" : "confirm"} // ✅ Muda para loading
-    title={isLoading ? "Criando Sala..." : "Confirmar Configurações"}
-    message="Tem certeza que deseja criar a sala com essas configurações?"
-    confirmText="Sim, criar sala"
-    cancelText="Não, voltar"
-    onConfirm={() => {
-          if (!isLoading) { // ✅ Só faz algo se não estiver loading
+        isOpen={showModal}
+        type={isLoading ? "loading" : "confirm"}
+        title={isLoading ? "Criando Sala..." : "Confirmar Configurações"}
+        message="Tem certeza que deseja criar a sala com essas configurações?"
+        confirmText="Sim, criar sala"
+        cancelText="Não, voltar"
+        onConfirm={() => {
+          if (!isLoading) {
             handleSubmit();
           }
         }}
         onCancel={() => {
-          if (!isLoading) { // ✅ Não deixa cancelar enquanto carrega
+          if (!isLoading) {
             setShowModal(false);
           }
         }}
-  />
+      />
     </div>
   );
 };
