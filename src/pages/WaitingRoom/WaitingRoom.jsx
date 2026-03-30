@@ -27,7 +27,8 @@ const WaitingRoom = () => {
   const [showModal, setShowModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showModalLeave, setShowModalLeave] = useState(false)
-
+  const [showModalStart, setShowModalStart] = useState(false)
+  //game_started
   useEffect(() => {
     const socket = io(import.meta.env.VITE_API_URL)
     // busca lista inicial de empresas
@@ -36,7 +37,14 @@ const WaitingRoom = () => {
       .then(data => setCompanies(data))
       .catch(err => console.error('Erro ao buscar empresas:', err))
 
-    
+    socket.on('game_started', () => {
+      if (companyId !== null) {
+        setTimeout(() => {
+          showToast('O jogo começou! Redirecionando...', 'success')
+          navigate(`/config/${companyId}`)
+        }, 1500)
+      }
+    })
     socket.on('room_cancelled', () => {
       if(facilitadorToken === null) {
       showToast('Sala cancelada pelo facilitador', 'warning')
@@ -60,12 +68,28 @@ const WaitingRoom = () => {
       socket.off('connect')
       socket.off('disconnect')
       socket.off('room_cancelled')
+      socket.off('game_started')
     }
   }, [roomCode])
 
   const handleStartGame = async () => {
-    // implementar quando fizer o endpoint de iniciar
-    console.log('iniciar jogo')
+    setIsLoading(true)
+    console.log('facilitadorToken:', facilitadorToken)
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/rooms/${roomCode}/start`, {
+        method: 'PATCH',
+        headers: {
+          'x-facilitator-token': `${facilitadorToken}`,
+        },
+      })
+    } catch (error) {
+      console.error('Erro ao iniciar jogo:', error)
+      setShowModalStart(false)
+    } finally {
+      setIsLoading(false)
+      setShowModalStart(false)
+    }
+    
   }
 
 
@@ -211,7 +235,7 @@ const WaitingRoom = () => {
             </button>
             <button
               className="btn-start"
-              onClick={handleStartGame}
+              onClick={() => setShowModalStart(true)}
               disabled={companies.length === 0}
             >
               Iniciar Jogo
@@ -251,6 +275,24 @@ const WaitingRoom = () => {
     onConfirm={() => {
           if (!isLoading) { 
             handleConfirmCancelRoom();
+          }
+        }}
+        onCancel={() => {
+          if (!isLoading) { 
+            setShowModal(false);
+          }
+        }}
+  />
+  <Modal 
+    isOpen={showModalStart}
+    type={isLoading ? "loading" : "confirm"}
+    title={isLoading ? "Iniciando sala..." : "Confirmar Início"}
+    message="Tem certeza que deseja iniciar a sala? Todos os participantes serão notificados."
+    confirmText="Iniciar Sala"
+    cancelText="Não, voltar"
+    onConfirm={() => {
+          if (!isLoading) { 
+            handleStartGame();
           }
         }}
         onCancel={() => {

@@ -1,266 +1,181 @@
-/* src/pages/CreateRoom/ConfiguracaoSala.css */
-
-.config-container {
-  max-width: 1200px; /* Alinhado ao layout da Landing Page */
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-
-header {
-  margin-bottom: 30px;
-  border-bottom: 2px solid var(--color-border);
-  padding-bottom: 15px;
-}
-
-header h1 {
-  color: var(--color-primary-blue); /* Título na cor principal sóbria */
-  font-size: 2rem;
-  font-weight: 700;
-}
-
-/* --- Seção de Autenticação (Chave API) --- */
-.auth-section {
-  background-color: var(--color-card-white);
-  padding: 20px;
-  border-radius: 8px; /* Bordas suaves como na img 3 */
-  border: 1px solid var(--color-border);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Sombra sutil */
-  margin-bottom: 30px;
-}
-
-.auth-section h2 {
-  color: var(--color-primary-blue);
-  font-size: 1.25rem;
-  margin-bottom: 15px;
-}
-
-/* --- Grid Principal das Configurações --- */
-.grid-config {
-  display: grid;
-  /* Cria até 3 colunas, adaptando-se a telas menores */
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 25px; /* Espaçamento generoso */
-  margin-bottom: 40px;
-}
-
-/* Estilo de cada 'Card' de seção */
-.grid-config section {
-  background-color: var(--color-card-white);
-  padding: 25px;
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s;
-}
-
-/* Feedback visual sutil no hover do card */
-.grid-config section:hover {
-  transform: translateY(-3px);
-  border-color: rgba(11, 90, 151, 0.3); /* Destaque sutil */
-}
-
-.grid-config h2 {
-  color: var(--color-primary-blue);
-  font-size: 1.25rem;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-}
+/* ConfigureRoom.css — Estilos exclusivos da página de criação de sala */
 
 /* Botão Voltar */
 .back-button {
   display: inline-flex;
-  align-items: center;
   gap: 8px;
   background: transparent;
-  color: var(--color-primary-blue);
-  border: 1px solid transparent;
-  padding: 8px 12px;
+  color: var(--color-action-orange);
+  border: 1.5px solid var(--color-action-orange);
+  padding: 10px 18px;
   border-radius: 8px;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.15s, transform 0.08s;
-  margin-bottom: 12px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.08s;
+  margin-bottom: 18px;
+  margin-top: 0;
+  box-shadow: 0 2px 8px rgba(11, 90, 151, 0.06);
 }
 
 .back-button:hover {
-  background: rgba(11,90,151,0.06);
+  background: var(--color-action-orange-hover);
+  color: #fff;
 }
 
 .back-button:active {
   transform: translateY(1px);
 }
 
-/* --- Labels e Inputs (O coração do visual) --- */
-label {
+/* ── Seção de Eventos ── */
+
+.event-empty-message {
+  color: var(--color-text-muted);
   font-size: 0.9rem;
-  color: var(--color-text-dark);
-  margin-bottom: 6px;
-  font-weight: 500;
-  display: block;
+  font-style: italic;
+  margin-bottom: 16px;
+  padding: 16px 20px;
+  background: rgba(11, 90, 151, 0.03);
+  border: 1.5px dashed var(--color-border);
+  border-radius: 10px;
+  text-align: center;
 }
 
-input {
-  width: 100%;
-  padding: 12px 15px;
-  margin-bottom: 18px; /* Espaço entre campos */
-  border: 1px solid var(--color-border);
-  border-radius: 6px; /* Borda arredondada suave (img 3) */
-  background-color: #fcfcfc;
-  color: var(--color-text-dark);
-  font-size: 1rem;
+/* Card de cada evento */
+.event-item {
+  display: grid;
+  grid-template-columns: 90px 1fr 2fr auto;
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 14px;
+  background: var(--color-card-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  padding: 18px 20px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Feedback de Foco nos Inputs (Usando o Laranja para ação) */
-input:focus {
-  outline: none;
-  border-color: var(--color-action-orange);
-  box-shadow: 0 0 0 3px rgba(255, 105, 10, 0.15); /* Halô laranja suave */
+.event-item:hover {
+  border-color: rgba(11, 90, 151, 0.2);
+  box-shadow: 0 4px 12px rgba(11, 90, 151, 0.06);
 }
 
-/* Inputs numéricos */
-input[type="number"] {
-  text-align: right; /* Alinhamento como na tabela original */
-  font-family: 'Courier New', monospace; /* Fonte mono p/ números (opcional) */
-  font-weight: bold;
+/* Labels dentro do event-item */
+.event-item label {
+  display: block;
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 
-/* --- Ações do Formulário (Botão) --- */
-.form-actions {
-  text-align: right;
-  border-top: 1px solid var(--color-border);
-  padding-top: 25px;
-}
-
-button[type="submit"] {
-  background-color: var(--color-action-orange); /* Laranja vibrante (img 5) */
-  color: #FFFFFF;
-  border: none;
-  padding: 14px 30px;
-  border-radius: 6px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(255, 105, 10, 0.2);
-  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
-}
-
-button[type="submit"]:hover {
-  background-color: var(--color-action-orange-hover);
-  box-shadow: 0 5px 8px rgba(255, 105, 10, 0.3);
-}
-
-button[type="submit"]:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 4px rgba(255, 105, 10, 0.2);
-}
-/* --- Seção de Eventos --- */
-.event-empty-message {
-  color: var(--color-text-dark);
-  opacity: 0.5;
-  margin-bottom: 16px;
-  font-size: 0.9rem;
-}
-
-.event-item {
-  display: grid;
-  grid-template-columns: 100px 1fr 2fr auto;
-  gap: 12px;
-  align-items: end;
-  margin-bottom: 12px;
-  padding: 16px;
-  border-radius: 6px;
-  border: 1px solid var(--color-border);
-  background-color: #f9f9f9;
-}
-
-.event-select {
+/* Inputs e select dentro do event-item */
+.event-item input[type="number"],
+.event-item input[type="text"],
+.event-item select {
   width: 100%;
-  padding: 12px 15px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background-color: #fcfcfc;
+  padding: 10px 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-background-light);
   color: var(--color-text-dark);
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  
 }
 
-.event-select:focus {
+.event-item input[type="number"]:focus,
+.event-item input[type="text"]:focus,
+.event-item select:focus {
   outline: none;
+  border-color: var(--color-primary-blue);
+  box-shadow: 0 0 0 3px rgba(11, 90, 151, 0.08);
+}
+
+/* Botão remover evento */
+.event-remove-button {
+  background: transparent;
+  border: 1.5px solid #e74c3c;
+  color: #e74c3c;
+  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.08s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.event-remove-button:hover {
+  background: #e74c3c;
+  color: #fff;
+  border-color: #e74c3c;
+}
+.event-remove-button:active {
+  transform: translateY(1px);
+}
+
+/* Botão adicionar evento */
+.event-add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1.5px dashed var(--color-action-orange);
+  color: var(--color-action-orange);
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.08s;
+}
+.event-add-button:hover {
+  background: var(--color-action-orange);
+  color: #fff;
+  border-style: solid;
   border-color: var(--color-action-orange);
-  box-shadow: 0 0 0 3px rgba(255, 105, 10, 0.15);
+}
+.event-add-button:active {
+  transform: translateY(1px);
+}
+
+/* Classes auxiliares dos inputs de evento */
+.event-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
 }
 
 .event-input-no-margin {
   margin-bottom: 0 !important;
 }
 
-.event-remove-button {
-  background: transparent;
-  border: 1px solid #e74c3c;
-  color: #e74c3c;
-  border-radius: 6px;
-  padding: 10px 14px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1rem;
-  transition: background 0.15s;
-}
-
-.event-remove-button:hover {
-  background: rgba(231, 76, 60, 0.08);
-}
-
-.event-add-button {
-  background: transparent;
-  border: 1px solid var(--color-primary-blue);
-  color: var(--color-primary-blue);
-  border-radius: 6px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-top: 8px;
-  transition: background 0.15s;
-}
-
-.event-add-button:hover {
-  background: rgba(11, 90, 151, 0.06);
-}
-
-.full-width {
-  grid-column: 1 / -1;
-}
-.menu-btn {
-    background: transparent;
-    border: 1px solid var(--color-action-orange);
-    color: var(--color-action-orange);
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-.menu-btn:hover {
-    background: var(--color-action-orange-hover);
-    color: #fff;
-}
-
-@media (max-width: 768px) {
+/* Responsividade dos eventos */
+@media (max-width: 700px) {
   .event-item {
     grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
-}
-
-/* Responsividade p/ mobile (single column) */
-@media (max-width: 768px) {
-  .config-container {
-    padding: 20px;
+  .event-item > div:nth-child(3) {
+    grid-column: 1 / -1;
   }
-  
-  .grid-config {
-    grid-template-columns: 1fr;
+  .event-remove-button {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-content: center;
   }
 }
