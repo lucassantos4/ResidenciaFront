@@ -85,7 +85,7 @@
 .idroom-submit {
     width: 100%;
     padding: 15px;
-    background-color: var(--color-text-dark);
+    background-color: var(--color-action-orange);
     color: #fff;
     border: none;
     border-radius: 8px;
