@@ -153,6 +153,42 @@ const ConfiguracaoSala = () => {
   };
 
   const handleEventChange = (index, field, value) => {
+    setEvents((prev) =>
+      prev.map((event, i) =>
+        i === index
+          ? { ...event, [field]: field === 'round' ? parseInt(value) : value }
+          : event
+      )
+    );
+  };
+  
+  const validateConfig = () => {
+   
+    if (Number(config.caixa) <= 0) {
+      alert("O Caixa Inicial deve ser maior que zero.");
+      return false;
+    }
+
+    if (Number(config.totalRounds) <= 0) {
+      alert("O Total de Rounds deve ser pelo menos 1.");
+      return false;
+    }
+
+    if (Number(config.juros) < 0) {
+      alert("A Taxa de Juros não pode ser negativa.");
+      return false;
+    }
+
+    const keys = Object.keys(config);
+    for (let key of keys) {
+      if (Number(config[key]) < 0) {
+        alert(`O campo ${key} não pode ter valor negativo.`);
+        return false;
+      }
+    }
+
+    return true; 
+  };
   setEvents((prev) =>
     prev.map((event, i) => {
       if (i === index) {
@@ -183,6 +219,8 @@ const ConfiguracaoSala = () => {
     e.preventDefault();
   }
   if (!validateConfig()) {
+    return; 
+    }
     setShowModal(false);
     return;
   }
