@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getCompanySettings, saveCompanySettings } from '../../services/CompanyService';
-import './CompanyConfigRoom.css';
 import "../../index.css";
+import '../../assets/css/RoomConfig.css';
+import './CompanyConfigRoom.css';
 
 const CARGOS = ['Serviços', 'Abastecimento', 'Comercial', 'Operacional', 'Gerente'];
 
