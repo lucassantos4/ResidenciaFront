@@ -12,14 +12,27 @@
   --color-text-dark: #3B3D40;      
   --color-text-muted: #6C757D;
   --color-border: #DDE2E6;   
-  --color-leave-room-red: #ed1d06;     
+  --color-leave-room-red: #ed1d06;   
+  
+  
 
   /* Tipografia */
-  --font-family-base: 'Inter', -apple-system, sans-serif; 
+  --font-family-base: 'Inter', -apple-system, sans-serif;
+  --font-size-title: 1.6rem;      /* 25.6px — títulos de página */
+  --font-size-subtitle: 0.9rem;   /* 14.4px — subtítulos de seção (uppercase) */
+  --font-size-label: 0.84rem;     /* 13.4px — labels de input (uppercase) */
+  --font-size-input: 1rem;        /* 16px — texto dentro dos inputs */
+  --font-size-body: 0.9rem;       /* 14.4px — texto geral / descrições */
+  --font-size-btn: 1rem;          /* 16px — botões */
 }
 
 html, body, #root {
   scroll-behavior: smooth !important;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 * {

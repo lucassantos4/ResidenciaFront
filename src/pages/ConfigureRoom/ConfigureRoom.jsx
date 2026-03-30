@@ -4,8 +4,9 @@ import "../../index.css";
 import './ConfigureRoom.css';
 import { createRoom } from '../../services/createRoomService';
 import Modal from '../../components/Modal';
-
+import { useToast } from '../../components/Toast.jsx'
 const ConfiguracaoSala = () => {
+  const { showToast } = useToast();
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false)
 
@@ -26,26 +27,119 @@ const ConfiguracaoSala = () => {
     impostoMercearia: 7,
     impostoEletro: 25,
     impostoHipel: 17,
-    custoUntPereceiveis: 0,
+    custoUntPereciveis: 0,
     custoUntMercearia: 0,
     custoUntEletro: 0,
     custoUntHipel: 0,
-    capexSeguranca: 0,
-    capexBalancaFreezer: 0,
-    capexRedes: 0,
-    capexSites: 0,
-    capexSelfCheckout: 0,
-    capexMelhoriaContinua: 0,
+    capexSegurancaValor: 0,
+    capexBalancaValor: 0,
+    capexFreezerValor: 0,
+    capexRedesValor: 0,
+    capexSiteValor: 0,
+    capexSelfCheckoutValor : 0,
+    capexMelhoriaContinuaValor: 0,
   });
   const [events, setEvents] = useState([]);
+
+  // Formata número para exibição BR com centavos (ex: 19800.5 → "19.800,50")
+  const formatBR = (val) => {
+    if (val === '' || val === undefined || val === null) return '';
+    return Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  // Handler para campos de DINHEIRO (type="text" com máscara)
+  const handleMoneyChange = (e) => {
+    const { name, value } = e.target;
+    if (value === '') {
+      setConfig((prev) => ({ ...prev, [name]: '' }));
+      return;
+    }
+    // Remove tudo que não é dígito, converte pra centavos
+    const digits = value.replace(/\D/g, '');
+    const num = parseInt(digits, 10);
+    setConfig((prev) => ({
+      ...prev,
+      [name]: isNaN(num) ? '' : num / 100,
+    }));
+  };
+
+  // Handler para campos de PERCENTUAL / QUANTIDADE (type="number")
   const handleChange = (e) => {
-      const { name, value } = e.target;
-      setConfig((prev) => ({
-        ...prev,
-        [name]: parseFloat(value) || 0,
-      }));
-    };
-  
+    const { name, value } = e.target;
+    setConfig((prev) => ({
+      ...prev,
+      [name]: value === '' ? '' : parseFloat(value),
+    }));
+  };
+  const validateConfig = () => {
+  const required = [
+    'caixa',
+    'juros',
+    'totalRounds',
+    'quebrasPereceiveis',
+    'quebrasMercearia',
+    'quebrasEletro',
+    'quebrasHipel',
+    'agingEletro',
+    'agingHipel',
+    'agingMercearia',
+    'agingPereceiveis',
+    'impostoPereceiveis',
+    'impostoMercearia',
+    'impostoEletro',
+    'impostoHipel',
+    'custoUntPereciveis',
+    'custoUntMercearia',
+    'custoUntEletro',
+    'custoUntHipel',
+    'capexSegurancaValor',
+    'capexBalancaValor',
+    'capexFreezerValor',
+    'capexRedesValor',
+    'capexSiteValor',
+    'capexSelfCheckoutValor',
+    'capexMelhoriaContinuaValor',
+  ];
+  const notZeroFields = [
+    'custoUntPereciveis',
+    'custoUntMercearia',
+    'custoUntEletro',
+    'custoUntHipel',
+    'capexSegurancaValor',
+    'capexBalancaValor',
+    'capexFreezerValor',
+    'capexRedesValor',
+    'capexSiteValor',
+    'capexSelfCheckoutValor',
+    'capexMelhoriaContinuaValor',
+  ];
+
+  // ✅ Filtra apenas campos realmente vazios (não conta 0 como vazio)
+   const missingFields = required.filter(field => {
+    const value = config[field];
+    return value === '' || value === undefined || value === null;
+  });
+
+  // ✅ Filtra campos que são 0 (quando não podem ser)
+  const zeroFields = notZeroFields.filter(field => config[field] === 0);
+
+  if (missingFields.length > 0) {
+    setTimeout(() => {
+      showToast(`Campos obrigatórios não preenchidos: ${missingFields.join(', ')}`, 'warning');
+    }, 100);
+    return false;
+  }
+
+  if (zeroFields.length > 0) {
+    setTimeout(() => {
+      showToast(`Estes campos não podem ser 0: ${zeroFields.join(', ')}`, 'warning');
+    }, 500);
+    return false;
+  }
+
+  console.log('✅ Validação passou!');
+  return true;
+};
 
   const handleAddEvent = () => {
     setEvents((prev) => [
@@ -59,30 +153,38 @@ const ConfiguracaoSala = () => {
   };
 
   const handleEventChange = (index, field, value) => {
-    setEvents((prev) =>
-      prev.map((event, i) =>
-        i === index
-          ? { ...event, [field]: field === 'round' ? parseInt(value) : value }
-          : event
-      )
-    );
-  };
+  setEvents((prev) =>
+    prev.map((event, i) => {
+      if (i === index) {
+        let finalValue = value;
 
-  const totalCapex =
-    config.capexSeguranca +
-    config.capexBalancaFreezer +
-    config.capexRedes +
-    config.capexSites +
-    config.capexSelfCheckout +
-    config.capexMelhoriaContinua;
-  
+        // Se o campo for 'round', aplicamos a trava
+        if (field === 'round') {
+          const num = parseInt(value, 10);
+          const max = config.totalRounds;
 
+          if (isNaN(num)) {
+            finalValue = ""; // Permite apagar o campo para digitar de novo
+          } else {
+            // Trava entre 1 e o máximo (ex: se digitar 10319819, vira o valor de 'max')
+            finalValue = Math.min(Math.max(num, 1), max);
+          }
+        }
 
-  
+        return { ...event, [field]: finalValue };
+      }
+      return event;
+    })
+  );
+};
 
   const handleSubmit = async (e) => {
   if (e && e.preventDefault) {
     e.preventDefault();
+  }
+  if (!validateConfig()) {
+    setShowModal(false);
+    return;
   }
   setIsLoading(true); // Inicia o loading
   try {
@@ -120,8 +222,6 @@ const ConfiguracaoSala = () => {
           <button type="button" className="back-button" onClick={() => navigate(-1)} aria-label="Voltar">
             ← Voltar
           </button>
-          <h2 className="main-title">Configuração da Sala</h2>
-          <p className="main-description">Preencha todos os campos e confirme para criar a sala.</p>
         </div>
         <div className="config-content">
           <form onSubmit={handleSubmit}>
@@ -130,15 +230,15 @@ const ConfiguracaoSala = () => {
               <div className="input-grid">
                 <div className="input-group">
                   <label>Caixa Inicial</label>
-                  <input type="number" name="caixa" value={config.caixa} onChange={handleChange} />
+                  <input type="text" name="caixa" value={formatBR(config.caixa)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Taxa de Juros (%)</label>
-                  <input type="number" name="juros" value={config.juros} onChange={handleChange} />
+                  <input type="number" name="juros" value={config.juros} onChange={handleChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Total de Rounds</label>
-                  <input type="number" name="totalRounds" value={config.totalRounds} onChange={handleChange} />
+                  <input type="number" name="totalRounds" value={config.totalRounds} onChange={handleChange} placeholder="0" />
                 </div>
               </div>
             </section>
@@ -148,41 +248,41 @@ const ConfiguracaoSala = () => {
               <div className="input-grid">
                 <div className="input-group">
                   <label>Perecíveis</label>
-                  <input type="number" name="quebrasPereceiveis" value={config.quebrasPereceiveis} onChange={handleChange} step="0.1" />
+                  <input type="number" name="quebrasPereceiveis" value={config.quebrasPereceiveis} placeholder='0' onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Mercearia</label>
-                  <input type="number" name="quebrasMercearia" value={config.quebrasMercearia} onChange={handleChange} step="0.1" />
+                  <input type="number" name="quebrasMercearia" value={config.quebrasMercearia} onChange={handleChange} placeholder='0' step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Eletro</label>
-                  <input type="number" name="quebrasEletro" value={config.quebrasEletro} onChange={handleChange} step="0.1" />
+                  <input type="number" name="quebrasEletro" value={config.quebrasEletro} onChange={handleChange} placeholder='0' step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Hipel</label>
-                  <input type="number" name="quebrasHipel" value={config.quebrasHipel} onChange={handleChange} step="0.1" />
+                  <input type="number" name="quebrasHipel" value={config.quebrasHipel} onChange={handleChange}  placeholder='0'step="0.1" />
                 </div>
               </div>
             </section>
 
             <section className="config-section">
-              <h3 className="section-subtitle">Aging</h3>
+              <h3 className="section-subtitle">Aging(%)</h3>
               <div className="input-grid">
                 <div className="input-group">
                   <label>Eletro</label>
-                  <input type="number" name="agingEletro" value={config.agingEletro} onChange={handleChange} step="0.1" />
+                  <input type="number" name="agingEletro" value={config.agingEletro} onChange={handleChange} placeholder='0' step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Hipel</label>
-                  <input type="number" name="agingHipel" value={config.agingHipel} onChange={handleChange} step="0.1" />
+                  <input type="number" name="agingHipel" value={config.agingHipel} onChange={handleChange} placeholder='0' step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Mercearia</label>
-                  <input type="number" name="agingMercearia" value={config.agingMercearia} onChange={handleChange} step="0.1" />
+                  <input type="number" name="agingMercearia" value={config.agingMercearia} onChange={handleChange} placeholder='0' step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Perecíveis</label>
-                  <input type="number" name="agingPereceiveis" value={config.agingPereceiveis} onChange={handleChange} step="0.1" />
+                  <input type="number" name="agingPereceiveis" value={config.agingPereceiveis} onChange={handleChange} placeholder='0' step="0.1" />
                 </div>
               </div>
             </section>
@@ -192,19 +292,19 @@ const ConfiguracaoSala = () => {
               <div className="input-grid">
                 <div className="input-group">
                   <label>Perecíveis</label>
-                  <input type="number" name="impostoPereceiveis" value={config.impostoPereceiveis} onChange={handleChange} />
+                  <input type="number" name="impostoPereceiveis" value={config.impostoPereceiveis} onChange={handleChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Mercearia</label>
-                  <input type="number" name="impostoMercearia" value={config.impostoMercearia} onChange={handleChange} />
+                  <input type="number" name="impostoMercearia" value={config.impostoMercearia} onChange={handleChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Eletro</label>
-                  <input type="number" name="impostoEletro" value={config.impostoEletro} onChange={handleChange} />
+                  <input type="number" name="impostoEletro" value={config.impostoEletro} onChange={handleChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Hipel</label>
-                  <input type="number" name="impostoHipel" value={config.impostoHipel} onChange={handleChange} />
+                  <input type="number" name="impostoHipel" value={config.impostoHipel} onChange={handleChange} placeholder="0" />
                 </div>
               </div>
             </section>
@@ -214,19 +314,19 @@ const ConfiguracaoSala = () => {
               <div className="input-grid">
                 <div className="input-group">
                   <label>Perecíveis</label>
-                  <input type="number" name="custoUntPereceiveis" value={config.custoUntPereceiveis} onChange={handleChange} />
+                  <input type="text" name="custoUntPereciveis" value={formatBR(config.custoUntPereciveis)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Mercearia</label>
-                  <input type="number" name="custoUntMercearia" value={config.custoUntMercearia} onChange={handleChange} />
+                  <input type="text" name="custoUntMercearia" value={formatBR(config.custoUntMercearia)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Eletro</label>
-                  <input type="number" name="custoUntEletro" value={config.custoUntEletro} onChange={handleChange} />
+                  <input type="text" name="custoUntEletro" value={formatBR(config.custoUntEletro)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Hipel</label>
-                  <input type="number" name="custoUntHipel" value={config.custoUntHipel} onChange={handleChange} />
+                  <input type="text" name="custoUntHipel" value={formatBR(config.custoUntHipel)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
               </div>
             </section>
@@ -236,32 +336,33 @@ const ConfiguracaoSala = () => {
               <div className="input-grid">
                 <div className="input-group">
                   <label>Segurança</label>
-                  <input type="number" name="capexSeguranca" value={config.capexSeguranca} onChange={handleChange} />
+                  <input type="text" name="capexSegurancaValor" value={formatBR(config.capexSegurancaValor)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
                 <div className="input-group">
-                  <label>Balança / Freezer</label>
-                  <input type="number" name="capexBalancaFreezer" value={config.capexBalancaFreezer} onChange={handleChange} />
+                  <label>Balança</label>
+                  <input type="text" name="capexBalancaValor" value={formatBR(config.capexBalancaValor)} onChange={handleMoneyChange} placeholder="0" />
+                </div>
+                 <div className="input-group">
+                  <label>Freezer</label>
+                  <input type="text" name="capexFreezerValor" value={formatBR(config.capexFreezerValor)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Redes</label>
-                  <input type="number" name="capexRedes" value={config.capexRedes} onChange={handleChange} />
+                  <input type="text" name="capexRedesValor" value={formatBR(config.capexRedesValor)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Sites</label>
-                  <input type="number" name="capexSites" value={config.capexSites} onChange={handleChange} />
+                  <input type="text" name="capexSiteValor" value={formatBR(config.capexSiteValor)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Self Checkout</label>
-                  <input type="number" name="capexSelfCheckout" value={config.capexSelfCheckout} onChange={handleChange} />
+                  <input type="text" name="capexSelfCheckoutValor" value={formatBR(config.capexSelfCheckoutValor)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Melhoria Contínua</label>
-                  <input type="number" name="capexMelhoriaContinua" value={config.capexMelhoriaContinua} onChange={handleChange} />
+                  <input type="text" name="capexMelhoriaContinuaValor" value={formatBR(config.capexMelhoriaContinuaValor)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
-                <div className="input-group">
-                  <label>Total CAPEX</label>
-                  <input type="number" value={totalCapex} readOnly />
-                </div>
+               
               </div>
             </section>
 
@@ -281,6 +382,7 @@ const ConfiguracaoSala = () => {
                       min="1"
                       max={config.totalRounds}
                       value={event.round}
+                      
                       onChange={(e) => handleEventChange(index, 'round', e.target.value)}
                       className="event-input-no-margin"
                     />
