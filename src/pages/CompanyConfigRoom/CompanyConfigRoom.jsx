@@ -7,7 +7,20 @@ import './CompanyConfigRoom.css';
 
 const CARGOS = ['Serviços', 'Abastecimento', 'Comercial', 'Operacional', 'Gerente'];
 
+const CAPEX_ITEMS = [
+  { key: 'capexSegurancaValor', field: 'capexSegurancaValor', label: 'Segurança', risk: 'Furtos e perdas sem sistema de segurança' },
+  { key: 'balanca', field: 'capexBalancaValor', label: 'Balança', risk: 'Impossibilidade de pesar produtos' },
+  { key: 'freezer', field: 'capexFreezerValor', label: 'Freezer', risk: 'Perda de perecíveis por falta de refrigeração' },
+  { key: 'redes', field: 'capexRedesValor', label: 'Redes', risk: 'Falha de conectividade e sistemas offline' },
+  { key: 'site', field: 'capexSiteValor', label: 'Site', risk: 'Sem presença digital e vendas online' },
+  { key: 'selfCheckout', field: 'capexSelfCheckoutValor', label: 'Self Checkout', risk: 'Filas maiores e custo operacional elevado' },
+  { key: 'melhoriaContinua', field: 'capexMelhoriaContinuaValor', label: 'Melhoria Contínua', risk: 'Processos ineficientes sem otimização' },
+];
+
 const CompanyConfigRoom = () => {
+  const code = localStorage.getItem('codeRoom');
+  const [configRoom, setConfigRoom] = useState({});
+
   const { companyId } = useParams();
 
   const [params, setParams] = useState({
@@ -23,14 +36,81 @@ const CompanyConfigRoom = () => {
   const [capexSelected, setCapexSelected] = useState([]);
 
   const [formData, setFormData] = useState({
-    marginPereciveis: 15, marginMercearia: 10, marginEletro: 25, marginHipel: 18,
-    estoquePereciveis: 0, estoqueMercearia: 0, estoqueEletro: 0, estoqueHipel: 0,
-    operadoresCaixa: 0, operadoresServico: 0,
+    margemPereciveis: 15,
+    margemMercearia: 10,
+    margemEletro: 25,
+    margemHipel: 18,
+    estoquePereciveis: 0,
+    estoqueMercearia: 0,
+    estoqueEletro: 0,
+    estoqueHipel: 0,
+    estoqueDisponivelPereciveis: 1000,
+    estoqueDisponivelMercearia: 1000,
+    estoqueDisponivelEletro: 1000,
+    estoqueDisponivelHipel: 1000,
+    disponibilidadePereciveis: 100,
+    disponibilidadeMercearia: 100,
+    disponibilidadeEletro: 100,
+    disponibilidadeHipel: 100,
+    operadoresCaixa: 0,
+    operadoresServico: 0,
+    capexSegurancaValor: false,
+    capexBalancaValor: false,
+    capexFreezerValor: false,
+    capexRedesValor: false,
+    capexSiteValor: false,
+    capexSelfCheckoutValor: false,
+    capexMelhoriaContinuaValor: false,
   });
+  const handleChange = (e) => {
+  const { name, value, type, checked } = e.target;
+  if (name.startsWith('estoque')) {
+    const catKey = name.replace('estoque', '');
+    const disponivel = formData[`estoqueDisponivel${catKey}`];
+    const numValue = Number(value) || 0;
+    
+    // Não permite comprar mais que o disponível
+    if (numValue > disponivel) {
+      console.warn(`⚠️ Quantidade não pode exceder o disponível (${disponivel} un.)`);
+      return; // Não atualiza o estado
+    }
+  }
+  setFormData(prev => ({
+    ...prev,
+    [name]: type === 'checkbox' ? checked : (Number(value) || 0)
+  }));
+};
+
+const toggleCapex = (key) => {
+  setFormData(prev => ({
+    ...prev,
+    [key]: !prev[key]
+  }));
+};
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  //pegar dados da sala
+  useEffect(() => {
+    try{
+      fetch (`${import.meta.env.VITE_API_URL}/rooms/${code}`, {
+        method: 'GET',
+      })
+      .then(res => res.json())
+      .then(data => {
+        setConfigRoom(data);
+        console.log('Configurações da sala:', data);
+      });
+    } catch (error) {
+      console.error('Erro ao buscar configurações da sala:', error);
+    }
+  }, [code]);
+  useEffect(() => {
+    if (Object.keys(configRoom).length > 0) {
+      console.log('✅ configRoom atualizado no estado:', configRoom);
+    }
+  }, [configRoom]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,16 +130,21 @@ const CompanyConfigRoom = () => {
   }, [companyId]);
 
   // Cálculos dinâmicos
-  const totalCapex = capexSelected.reduce((sum, key) => {
-    const item = params.capexItems.find(i => i.key === key);
-    return sum + (item ? item.cost : 0);
-  }, 0);
+  const totalCapex = CAPEX_ITEMS.reduce((sum, item) => {
+  // Se o item foi selecionado (true), adiciona o custo
+  const isSelected = formData[item.field];
+  const cost = isSelected ? (configRoom[item.field] || 0) : 0;
+  return sum + cost;
+}, 0);
+useEffect(() => {
+  console.log('form:', formData);
+}, [formData]);
 
   const custoEstoque =
-    formData.estoquePereciveis * params.custoUntPereciveis +
-    formData.estoqueMercearia * params.custoUntMercearia +
-    formData.estoqueEletro * params.custoUntEletro +
-    formData.estoqueHipel * params.custoUntHipel;
+    formData.estoquePereciveis * configRoom.custoUntPereciveis +
+    formData.estoqueMercearia * configRoom.custoUntMercearia +
+    formData.estoqueEletro * configRoom.custoUntEletro +
+    formData.estoqueHipel * configRoom.custoUntHipel;
 
   const custoPessoal = (formData.operadoresCaixa + formData.operadoresServico) * params.custoPorOperador;
   const totalGastos = totalCapex + custoEstoque + custoPessoal;
@@ -68,33 +153,28 @@ const CompanyConfigRoom = () => {
   const jurosPrevistos = excedente * (params.juros / 100);
 
   const precoCesta =
-    params.custoUntPereciveis * (1 + formData.marginPereciveis / 100) +
-    params.custoUntMercearia * (1 + formData.marginMercearia / 100) +
-    params.custoUntEletro * (1 + formData.marginEletro / 100) +
-    params.custoUntHipel * (1 + formData.marginHipel / 100);
+    configRoom.custoUntPereciveis * (1 + formData.margemPereciveis / 100) +
+    configRoom.custoUntMercearia * (1 + formData.margemMercearia / 100) +
+    configRoom.custoUntEletro * (1 + formData.margemEletro / 100) +
+    configRoom.custoUntHipel * (1 + formData.margemHipel / 100);
 
   // Handlers
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: Number(value) || 0 }));
-  };
 
   const handleCargoChange = (e) => {
     const { name, value } = e.target;
     setCargos(prev => ({ ...prev, [name]: value }));
   };
 
-  const toggleCapex = (key) => {
-    setCapexSelected(prev =>
-      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
-    );
-  };
+ 
+  useEffect(() => {
+    console.log("capex selecionado:", capexSelected);
+  }, [capexSelected]);
 
   const handleSave = async () => {
     setSaving(true);
     setError(null);
     try {
-      const payload = { ...formData, cargos, capexItems: capexSelected };
+      const payload = formData;
       const result = await saveCompanySettings(companyId, payload);
       let msg = result.message || 'Estratégia confirmada com sucesso!';
       if (result.jurosAplicado > 0) {
@@ -108,15 +188,23 @@ const CompanyConfigRoom = () => {
       setSaving(false);
     }
   };
+  
+
+// Função para formatar percentual com até 2 casas decimais
 
   const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
+  const fmtPercent = (value) => {
+  return value.toLocaleString('pt-BR', { 
+    minimumFractionDigits: 0, 
+    maximumFractionDigits: 2 
+  });
+};
   return (
     <div className="config-container">
       {/* Sidebar */}
       <aside className="config-sidebar">
         <div className="sidebar-top">
-          <h1 className="config-title">Configuração<br />da Rodada</h1>
+          <h1 className="config-title">Painel de Estratégia</h1>
           <span className="config-title-accent" />
           <p className="config-subtitle">
             Defina cargos, investimentos, estoque, preços e pessoal para esta rodada.
@@ -126,6 +214,25 @@ const CompanyConfigRoom = () => {
         <div className={`balance-card ${saldoRestante < 0 ? 'insufficient-funds' : ''}`}>
           <span className="balance-label">Saldo Disponível</span>
           <strong className="balance-value">{fmt(saldoRestante)}</strong>
+          {/* Detalhamento de Gastos 
+          <div className="gasto-detalhamento">
+            <div className="gasto-item">
+              <span className="gasto-label">CAPEX</span>
+              <span className="gasto-valor">{fmt(totalCapex)}</span>
+            </div>
+            <div className="gasto-item">
+              <span className="gasto-label">Estoque</span>
+              <span className="gasto-valor">{fmt(custoEstoque)}</span>
+            </div>
+            <div className="gasto-item">
+              <span className="gasto-label">Pessoal</span>
+              <span className="gasto-valor">{fmt(custoPessoal)}</span>
+            </div>
+            <div className="gasto-item gasto-total">
+              <span className="gasto-label">Total Gastos</span>
+              <span className="gasto-valor">{fmt(totalGastos)}</span>
+            </div>
+          </div>*/}
           <span className="balance-hint">Gasto: {fmt(totalGastos)}</span>
           {excedente > 0 && (
             <div className="juros-alert">
@@ -142,10 +249,7 @@ const CompanyConfigRoom = () => {
 
       {/* Painel principal */}
       <div className="config-main">
-        <div className="config-main-header">
-          <h2 className="main-title">Painel de Estratégia</h2>
-          <p className="main-description">Preencha todas as seções e confirme sua decisão como equipe.</p>
-        </div>
+        
 
         {loading && <div className="status-message loading">Carregando dados...</div>}
         {error && <div className="status-message error">Erro: {error}</div>}
@@ -191,71 +295,180 @@ const CompanyConfigRoom = () => {
           </section>
 
           {/* SEÇÃO 2: CAPEX */}
+                    {/* SEÇÃO 2: CAPEX */}
           <section className="config-section">
             <h3 className="section-subtitle">Investimentos (CAPEX)</h3>
             <p className="section-hint">Selecione os itens de infraestrutura. Itens não comprados podem gerar incidentes.</p>
             <div className="capex-grid">
-              {params.capexItems.map(item => (
-                <div
-                  key={item.key}
-                  className={`capex-card ${capexSelected.includes(item.key) ? 'selected' : ''}`}
-                  onClick={() => toggleCapex(item.key)}
-                >
-                  <div className="capex-card-header">
-                    <span className="capex-check">{capexSelected.includes(item.key) ? '✓' : ''}</span>
-                    <strong className="capex-label">{item.label}</strong>
-                    <span className="capex-cost">{fmt(item.cost)}</span>
-                  </div>
-                  <p className="capex-risk">⚠ Risco: {item.risk}</p>
+              
+              {/* Segurança */}
+              <div
+                className={`capex-card ${formData.capexSegurancaValor ? 'selected' : ''}`}
+                onClick={() => toggleCapex('capexSegurancaValor')}
+              >
+                <div className="capex-card-header">
+                  <span className="capex-check">{formData.capexSegurancaValor ? '✓' : ''}</span>
+                  <strong className="capex-label">Segurança</strong>
+                  <span className="capex-cost">{fmt(configRoom.capexSegurancaValor || 0)}</span>
                 </div>
-              ))}
+                <p className="capex-risk">⚠ Risco: Furtos e perdas sem sistema de segurança</p>
+              </div>
+
+              {/* Balança */}
+              <div
+                className={`capex-card ${formData.capexBalancaValor ? 'selected' : ''}`}
+                onClick={() => toggleCapex('capexBalancaValor')}
+              >
+                <div className="capex-card-header">
+                  <span className="capex-check">{formData.capexBalancaValor ? '✓' : ''}</span>
+                  <strong className="capex-label">Balança</strong>
+                  <span className="capex-cost">{fmt(configRoom.capexBalancaValor || 0)}</span>
+                </div>
+                <p className="capex-risk">⚠ Risco: Impossibilidade de pesar produtos</p>
+              </div>
+
+              {/* Freezer */}
+              <div
+                className={`capex-card ${formData.capexFreezerValor ? 'selected' : ''}`}
+                onClick={() => toggleCapex('capexFreezerValor')}
+              >
+                <div className="capex-card-header">
+                  <span className="capex-check">{formData.capexFreezerValor ? '✓' : ''}</span>
+                  <strong className="capex-label">Freezer</strong>
+                  <span className="capex-cost">{fmt(configRoom.capexFreezerValor || 0)}</span>
+                </div>
+                <p className="capex-risk">⚠ Risco: Perda de perecíveis por falta de refrigeração</p>
+              </div>
+
+              {/* Redes */}
+              <div
+                className={`capex-card ${formData.capexRedesValor ? 'selected' : ''}`}
+                onClick={() => toggleCapex('capexRedesValor')}
+              >
+                <div className="capex-card-header">
+                  <span className="capex-check">{formData.capexRedesValor ? '✓' : ''}</span>
+                  <strong className="capex-label">Redes</strong>
+                  <span className="capex-cost">{fmt(configRoom.capexRedesValor || 0)}</span>
+                </div>
+                <p className="capex-risk">⚠ Risco: Falha de conectividade e sistemas offline</p>
+              </div>
+
+              {/* Site */}
+              <div
+                className={`capex-card ${formData.capexSiteValor ? 'selected' : ''}`}
+                onClick={() => toggleCapex('capexSiteValor')}
+              >
+                <div className="capex-card-header">
+                  <span className="capex-check">{formData.capexSiteValor ? '✓' : ''}</span>
+                  <strong className="capex-label">Site</strong>
+                  <span className="capex-cost">{fmt(configRoom.capexSiteValor || 0)}</span>
+                </div>
+                <p className="capex-risk">⚠ Risco: Sem presença digital e vendas online</p>
+              </div>
+
+              {/* Self Checkout */}
+              <div
+                className={`capex-card ${formData.capexSelfCheckoutValor ? 'selected' : ''}`}
+                onClick={() => toggleCapex('capexSelfCheckoutValor')}
+              >
+                <div className="capex-card-header">
+                  <span className="capex-check">{formData.capexSelfCheckoutValor ? '✓' : ''}</span>
+                  <strong className="capex-label">Self Checkout</strong>
+                  <span className="capex-cost">{fmt(configRoom.capexSelfCheckoutValor || 0)}</span>
+                </div>
+                <p className="capex-risk">⚠ Risco: Filas maiores e custo operacional elevado</p>
+              </div>
+
+              {/* Melhoria Contínua */}
+              <div
+                className={`capex-card ${formData.capexMelhoriaContinuaValor ? 'selected' : ''}`}
+                onClick={() => toggleCapex('capexMelhoriaContinuaValor')}
+              >
+                <div className="capex-card-header">
+                  <span className="capex-check">{formData.capexMelhoriaContinuaValor ? '✓' : ''}</span>
+                  <strong className="capex-label">Melhoria Contínua</strong>
+                  <span className="capex-cost">{fmt(configRoom.capexMelhoriaContinuaValor || 0)}</span>
+                </div>
+                <p className="capex-risk">⚠ Risco: Processos ineficientes sem otimização</p>
+              </div>
+
             </div>
             <div className="capex-total">
               Total CAPEX: <strong>{fmt(totalCapex)}</strong>
             </div>
           </section>
-
           {/* SEÇÃO 3: Estoque + Margens */}
           <section className="config-section">
             <h3 className="section-subtitle">Abastecimento e Comercial</h3>
             <div className="stock-table">
               <div className="stock-header">
                 <span>Categoria</span>
-                <span>Custo <br /> Unitário</span>
-                <span>Qtd. Comprar</span>
-                <span>Custo <br /> Total</span>
-                <span>Margem (%)</span>
-                <span>Preço <br /> Venda</span>
+                <span className="stock-center">Custo <br /> Unitário</span>
+                <span className="stock-center">Disponível</span>
+                <span className="stock-center">Qtd. <br /> Comprar</span>
+                <span className="stock-center">Disponibilidade <br /> (%)</span>
+                <span className="stock-center">Custo <br /> Total</span>
+                <span className="stock-center">Imposto <br /> (%)</span>
+                <span className="stock-center">Margem <br /> (%)</span>
+                <span className="stock-center">Preço <br /> Venda</span>
+                <span className="stock-center">Disponibilidade <br /> (%)</span>
               </div>
               {[
-                { key: 'Pereciveis', label: 'Perecíveis', custo: params.custoUntPereciveis },
-                { key: 'Mercearia', label: 'Mercearia', custo: params.custoUntMercearia },
-                { key: 'Eletro', label: 'Eletro', custo: params.custoUntEletro },
-                { key: 'Hipel', label: 'Hipel', custo: params.custoUntHipel },
+                { key: 'Pereciveis', label: 'Perecíveis', custo: configRoom.custoUntPereciveis || 0, imposto: configRoom.impostoPereceiveis || 0 },
+                { key: 'Mercearia', label: 'Mercearia', custo: configRoom.custoUntMercearia || 0, imposto: configRoom.impostoMercearia || 0 },
+                { key: 'Eletro', label: 'Eletro', custo: configRoom.custoUntEletro || 0, imposto: configRoom.impostoEletro || 0 },
+                { key: 'Hipel', label: 'Hipel', custo: configRoom.custoUntHipel || 0, imposto: configRoom.impostoHipel || 0 },
               ].map(cat => {
                 const qtd = formData[`estoque${cat.key}`];
-                const margem = formData[`margin${cat.key}`];
+                const margem = formData[`margem${cat.key}`];
+                const disponivel = formData[`estoqueDisponivel${cat.key}`];
+                const disponibilidade = disponivel > 0 ? (qtd / disponivel) * 100 : 0;
                 const custoTotal = qtd * cat.custo;
                 const precoVenda = cat.custo * (1 + margem / 100);
                 return (
                   <div className="stock-row" key={cat.key}>
                     <span className="stock-cat">{cat.label}</span>
-                    <span>{fmt(cat.custo)}</span>
-                    <input name={`estoque${cat.key}`} type="number" min="0"
-                      value={qtd} onChange={handleChange} />
-                    <span>{fmt(custoTotal)}</span>
-                    <input name={`margin${cat.key}`} type="number" min="0"
-                      value={margem} onChange={handleChange} />
-                    <span className="stock-price">{fmt(precoVenda)}</span>
+                    <span className="stock-center">{fmt(cat.custo)}</span>
+                    <span className="stock-center">{disponivel} un.</span>
+                    <input 
+                      name={`estoque${cat.key}`} 
+                      type="text" 
+                      min="0"
+                      max={disponivel}
+                      value={qtd} 
+                      onChange={handleChange} 
+                      className="stock-input"
+                    />
+                    <span className="stock-center stock-disponibilidade">
+                      {fmtPercent(disponibilidade)}%
+                    </span>
+                    
+                    <span className="stock-center">{fmt(custoTotal)}</span>
+                    <span className="stock-center">{cat.imposto}%</span>
+                    <input 
+                      name={`margem${cat.key}`} 
+                      type="text" 
+                      min="0"
+                      value={margem} 
+                      onChange={handleChange} 
+                      className="stock-input"
+                    />
+                    <span className="stock-price stock-center">{fmt(precoVenda)}</span>
+                    
+                    
                   </div>
                 );
               })}
               <div className="stock-row stock-summary">
                 <span className="stock-cat">Total</span>
-                <span></span><span></span>
-                <span><strong>{fmt(custoEstoque)}</strong></span>
                 <span></span>
-                <span className="stock-price"><strong>{fmt(precoCesta)}</strong></span>
+                <span></span>
+                <span></span>
+                <span className="stock-center"><strong>{fmt(custoEstoque)}</strong></span>
+                <span></span>
+                <span></span>
+                <span className="stock-price stock-center"><strong>{fmt(precoCesta)}</strong></span>
+                <span></span>
               </div>
             </div>
           </section>
