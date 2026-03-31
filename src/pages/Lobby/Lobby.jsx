@@ -18,6 +18,7 @@ const CencosudPinPage = () => {
       const data =  await joinRoom(pin, companyName, playerName);
       console.log("Entrou na sala com sucesso:", data);
       localStorage.setItem('companyId', data.company.id);
+      localStorage.setItem('codeRoom', pin);
       console.log('Company ID armazenado:', localStorage.getItem('companyId'));
       navigate(`/waitingroom/${pin}`);
     } catch (err) {

@@ -31,13 +31,17 @@ const ConfiguracaoSala = () => {
     custoUntMercearia: 0,
     custoUntEletro: 0,
     custoUntHipel: 0,
-    capexSegurancaValor: 0,
-    capexBalancaValor: 0,
-    capexFreezerValor: 0,
-    capexRedesValor: 0,
-    capexSiteValor: 0,
-    capexSelfCheckoutValor : 0,
-    capexMelhoriaContinuaValor: 0,
+    capexSegurancaValor: 50000,
+    capexBalancaValor: 75000,
+    capexFreezerValor: 75000,
+    capexRedesValor: 80000,
+    capexSiteValor: 65000,
+    capexSelfCheckoutValor : 80000,
+    capexMelhoriaContinuaValor: 45000,
+    estoqueDisponivelPereciveis: 1000,
+    estoqueDisponivelMercearia: 1000,
+    estoqueDisponivelEletro: 1000,
+    estoqueDisponivelHipel: 1000
   });
   const [events, setEvents] = useState([]);
 
@@ -305,6 +309,27 @@ const ConfiguracaoSala = () => {
                 <div className="input-group">
                   <label>Hipel</label>
                   <input type="number" name="impostoHipel" value={config.impostoHipel} onChange={handleChange} placeholder="0" />
+                </div>
+              </div>
+            </section>
+            <section className="config-section">
+              <h3 className="section-subtitle">Estoque Disponível</h3>
+              <div className="input-grid">
+                <div className="input-group">
+                  <label>Perecíveis</label>
+                  <input type="number" name="estoqueDisponivelPereciveis" value={config.estoqueDisponivelPereciveis} onChange={handleChange} placeholder="0" />
+                </div>
+                <div className="input-group">
+                  <label>Mercearia</label>
+                  <input type="number" name="estoqueDisponivelMercearia" value={config.estoqueDisponivelMercearia} onChange={handleChange} placeholder="0" />
+                </div>
+                <div className="input-group">
+                  <label>Eletro</label>
+                  <input type="number" name="estoqueDisponivelEletro" value={config.estoqueDisponivelEletro} onChange={handleChange} placeholder="0" />
+                </div>
+                <div className="input-group">
+                  <label>Hipel</label>
+                  <input type="number" name="estoqueDisponivelHipel" value={config.estoqueDisponivelHipel} onChange={handleChange} placeholder="0" />
                 </div>
               </div>
             </section>

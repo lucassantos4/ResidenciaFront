@@ -17,6 +17,7 @@ const WaitingRoom = () => {
   const companyId = localStorage.getItem('companyId')
   const facilitadorToken = localStorage.getItem('facilitadorToken')
   const roomCode = code
+  
 
   const [companies, setCompanies] = useState([])
   const [connected, setConnected] = useState(false)
