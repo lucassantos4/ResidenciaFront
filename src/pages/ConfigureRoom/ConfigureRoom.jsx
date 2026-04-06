@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "../../index.css";
 import './ConfigureRoom.css';
 import { createRoom } from '../../services/createRoomService';
 import Modal from '../../components/Modal';
-import { useToast } from '../../components/Toast.jsx'
+import { useToast } from '../../components/Toast.jsx';
+
+// 1. IMPORT DO SEU COMPONENTE
+import SalesDistributionConfig from "../../components/SalesDistributionConfig/SalesDistributionConfig.jsx";
+
 const ConfiguracaoSala = () => {
   const { showToast } = useToast();
   const [showModal, setShowModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false)
-
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
   const [config, setConfig] = useState({
     caixa: 700000,
     juros: 12,
@@ -43,22 +47,29 @@ const ConfiguracaoSala = () => {
     estoqueDisponivelEletro: 1000,
     estoqueDisponivelHipel: 1000
   });
+  
   const [events, setEvents] = useState([]);
 
-  // Formata número para exibição BR com centavos (ex: 19800.5 → "19.800,50")
+  // 2. SEUS TRÊS ESTADOS NOVOS
+  const [vendasDist, setVendasDist] = useState([]);
+  const [vendasValid, setVendasValid] = useState(false);
+
+  const handleVendasChange = useCallback((payload, isValid) => {
+    setVendasDist(payload);
+    setVendasValid(isValid);
+  }, []);
+
   const formatBR = (val) => {
     if (val === '' || val === undefined || val === null) return '';
     return Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
-  // Handler para campos de DINHEIRO (type="text" com máscara)
   const handleMoneyChange = (e) => {
     const { name, value } = e.target;
     if (value === '') {
       setConfig((prev) => ({ ...prev, [name]: '' }));
       return;
     }
-    // Remove tudo que não é dígito, converte pra centavos
     const digits = value.replace(/\D/g, '');
     const num = parseInt(digits, 10);
     setConfig((prev) => ({
@@ -67,7 +78,6 @@ const ConfiguracaoSala = () => {
     }));
   };
 
-  // Handler para campos de PERCENTUAL / QUANTIDADE (type="number")
   const handleChange = (e) => {
     const { name, value } = e.target;
     setConfig((prev) => ({
@@ -75,75 +85,65 @@ const ConfiguracaoSala = () => {
       [name]: value === '' ? '' : parseFloat(value),
     }));
   };
+
+  // CORREÇÃO: Unifiquei os dois validateConfig em um só
   const validateConfig = () => {
-  const required = [
-    'caixa',
-    'juros',
-    'totalRounds',
-    'quebrasPereceiveis',
-    'quebrasMercearia',
-    'quebrasEletro',
-    'quebrasHipel',
-    'agingEletro',
-    'agingHipel',
-    'agingMercearia',
-    'agingPereceiveis',
-    'impostoPereceiveis',
-    'impostoMercearia',
-    'impostoEletro',
-    'impostoHipel',
-    'custoUntPereciveis',
-    'custoUntMercearia',
-    'custoUntEletro',
-    'custoUntHipel',
-    'capexSegurancaValor',
-    'capexBalancaValor',
-    'capexFreezerValor',
-    'capexRedesValor',
-    'capexSiteValor',
-    'capexSelfCheckoutValor',
-    'capexMelhoriaContinuaValor',
-  ];
-  const notZeroFields = [
-    'custoUntPereciveis',
-    'custoUntMercearia',
-    'custoUntEletro',
-    'custoUntHipel',
-    'capexSegurancaValor',
-    'capexBalancaValor',
-    'capexFreezerValor',
-    'capexRedesValor',
-    'capexSiteValor',
-    'capexSelfCheckoutValor',
-    'capexMelhoriaContinuaValor',
-  ];
+    const required = [
+      'caixa', 'juros', 'totalRounds', 'quebrasPereceiveis', 'quebrasMercearia',
+      'quebrasEletro', 'quebrasHipel', 'agingEletro', 'agingHipel', 'agingMercearia',
+      'agingPereceiveis', 'impostoPereceiveis', 'impostoMercearia', 'impostoEletro',
+      'impostoHipel', 'custoUntPereciveis', 'custoUntMercearia', 'custoUntEletro',
+      'custoUntHipel', 'capexSegurancaValor', 'capexBalancaValor', 'capexFreezerValor',
+      'capexRedesValor', 'capexSiteValor', 'capexSelfCheckoutValor', 'capexMelhoriaContinuaValor',
+    ];
+    const notZeroFields = [
+      'custoUntPereciveis', 'custoUntMercearia', 'custoUntEletro', 'custoUntHipel',
+      'capexSegurancaValor', 'capexBalancaValor', 'capexFreezerValor', 'capexRedesValor',
+      'capexSiteValor', 'capexSelfCheckoutValor', 'capexMelhoriaContinuaValor',
+    ];
 
-  // ✅ Filtra apenas campos realmente vazios (não conta 0 como vazio)
-   const missingFields = required.filter(field => {
-    const value = config[field];
-    return value === '' || value === undefined || value === null;
-  });
+    const missingFields = required.filter(field => {
+      const value = config[field];
+      return value === '' || value === undefined || value === null;
+    });
 
-  // ✅ Filtra campos que são 0 (quando não podem ser)
-  const zeroFields = notZeroFields.filter(field => config[field] === 0);
+    const zeroFields = notZeroFields.filter(field => config[field] === 0);
 
-  if (missingFields.length > 0) {
-    setTimeout(() => {
-      showToast(`Campos obrigatórios não preenchidos: ${missingFields.join(', ')}`, 'warning');
-    }, 100);
-    return false;
-  }
+    if (missingFields.length > 0) {
+      setTimeout(() => showToast(`Campos vazios: ${missingFields.join(', ')}`, 'warning'), 100);
+      return false;
+    }
 
-  if (zeroFields.length > 0) {
-    setTimeout(() => {
-      showToast(`Estes campos não podem ser 0: ${zeroFields.join(', ')}`, 'warning');
-    }, 500);
-    return false;
-  }
+    if (zeroFields.length > 0) {
+      setTimeout(() => showToast(`Não podem ser 0: ${zeroFields.join(', ')}`, 'warning'), 500);
+      return false;
+    }
 
-  console.log('✅ Validação passou!');
-  return true;
-};
+    if (Number(config.caixa) <= 0) {
+      showToast("O Caixa Inicial deve ser maior que zero.", "warning");
+      return false;
+    }
+
+    if (Number(config.totalRounds) <= 0) {
+      showToast("O Total de Rounds deve ser pelo menos 1.", "warning");
+      return false;
+    }
+
+    if (Number(config.juros) < 0) {
+      showToast("A Taxa de Juros não pode ser negativa.", "warning");
+      return false;
+    }
+
+    const keys = Object.keys(config);
+    for (let key of keys) {
+      if (Number(config[key]) < 0) {
+        showToast(`O campo ${key} não pode ser negativo.`, "warning");
+        return false;
+      }
+    }
+
+    return true;
+  };
 
   const handleAddEvent = () => {
     setEvents((prev) => [
@@ -156,101 +156,65 @@ const ConfiguracaoSala = () => {
     setEvents((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // CORREÇÃO: Coloquei aquele código órfão dentro da função correta
   const handleEventChange = (index, field, value) => {
     setEvents((prev) =>
-      prev.map((event, i) =>
-        i === index
-          ? { ...event, [field]: field === 'round' ? parseInt(value) : value }
-          : event
-      )
+      prev.map((event, i) => {
+        if (i === index) {
+          let finalValue = value;
+          if (field === 'round') {
+            const num = parseInt(value, 10);
+            const max = config.totalRounds;
+            if (isNaN(num)) {
+              finalValue = ""; 
+            } else {
+              finalValue = Math.min(Math.max(num, 1), max);
+            }
+          }
+          return { ...event, [field]: finalValue };
+        }
+        return event;
+      })
     );
   };
-  
-  const validateConfig = () => {
-   
-    if (Number(config.caixa) <= 0) {
-      alert("O Caixa Inicial deve ser maior que zero.");
-      return false;
-    }
-
-    if (Number(config.totalRounds) <= 0) {
-      alert("O Total de Rounds deve ser pelo menos 1.");
-      return false;
-    }
-
-    if (Number(config.juros) < 0) {
-      alert("A Taxa de Juros não pode ser negativa.");
-      return false;
-    }
-
-    const keys = Object.keys(config);
-    for (let key of keys) {
-      if (Number(config[key]) < 0) {
-        alert(`O campo ${key} não pode ter valor negativo.`);
-        return false;
-      }
-    }
-
-    return true; 
-  };
-  setEvents((prev) =>
-    prev.map((event, i) => {
-      if (i === index) {
-        let finalValue = value;
-
-        // Se o campo for 'round', aplicamos a trava
-        if (field === 'round') {
-          const num = parseInt(value, 10);
-          const max = config.totalRounds;
-
-          if (isNaN(num)) {
-            finalValue = ""; // Permite apagar o campo para digitar de novo
-          } else {
-            // Trava entre 1 e o máximo (ex: se digitar 10319819, vira o valor de 'max')
-            finalValue = Math.min(Math.max(num, 1), max);
-          }
-        }
-
-        return { ...event, [field]: finalValue };
-      }
-      return event;
-    })
-  );
-};
 
   const handleSubmit = async (e) => {
-  if (e && e.preventDefault) {
-    e.preventDefault();
-  }
-  if (!validateConfig()) {
-    return; 
+    if (e && e.preventDefault) {
+      e.preventDefault();
     }
+    
+    if (!validateConfig()) {
+      return; 
+    }
+
+    // 3. SUA VALIDAÇÃO DE VENDAS ANTES DO CREATE ROOM
+    if (!vendasValid) {
+      showToast("Configure a distribuição de vendas (cada categoria deve somar 100%)", "warning");
+      return;
+    }
+
     setShowModal(false);
-    return;
-  }
-  setIsLoading(true); // Inicia o loading
-  try {
-    console.log("Configurações enviadas para criação da sala:", config);
-    console.log("Eventos enviados para criação da sala:", events);
-    const data = await createRoom({
-      ...config, 
-      events});
-    localStorage.setItem('facilitadorToken', data.room.facilitatorToken);
-    navigate(`/waitingroom/${data.room.code}`);
-    
-    
-  } catch (error) {
-    console.error("Erro ao criar sala:", error);
-    // Aqui você pode adicionar um toast ou mensagem de erro para o usuário
-  } finally {
-    setIsLoading(false); // Encerra o loading
-  }
-};
+    setIsLoading(true); 
+
+    try {
+      // 3.5 SEU PAYLOAD DE VENDAS ENVIADO PARA A API
+      const data = await createRoom({
+        ...config, 
+        vendasDistribuicao: vendasDist,
+        events
+      });
+      
+      localStorage.setItem('facilitadorToken', data.room.facilitatorToken);
+      navigate(`/waitingroom/${data.room.code}`);
+    } catch (error) {
+      console.error("Erro ao criar sala:", error);
+    } finally {
+      setIsLoading(false); 
+    }
+  };
 
   return (
-    
     <div className="config-container">
-      {/* Sidebar decorativo para manter semântica visual */}
       <aside className="config-sidebar">
         <div className="sidebar-top">
           <h1 className="config-title">Configuração<br />da Sala</h1>
@@ -290,19 +254,19 @@ const ConfiguracaoSala = () => {
               <div className="input-grid">
                 <div className="input-group">
                   <label>Perecíveis</label>
-                  <input type="number" name="quebrasPereceiveis" value={config.quebrasPereceiveis} placeholder='0' onChange={handleChange} step="0.1" />
+                  <input type="number" name="quebrasPereceiveis" value={config.quebrasPereceiveis} onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Mercearia</label>
-                  <input type="number" name="quebrasMercearia" value={config.quebrasMercearia} onChange={handleChange} placeholder='0' step="0.1" />
+                  <input type="number" name="quebrasMercearia" value={config.quebrasMercearia} onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Eletro</label>
-                  <input type="number" name="quebrasEletro" value={config.quebrasEletro} onChange={handleChange} placeholder='0' step="0.1" />
+                  <input type="number" name="quebrasEletro" value={config.quebrasEletro} onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Hipel</label>
-                  <input type="number" name="quebrasHipel" value={config.quebrasHipel} onChange={handleChange}  placeholder='0'step="0.1" />
+                  <input type="number" name="quebrasHipel" value={config.quebrasHipel} onChange={handleChange} step="0.1" />
                 </div>
               </div>
             </section>
@@ -312,19 +276,19 @@ const ConfiguracaoSala = () => {
               <div className="input-grid">
                 <div className="input-group">
                   <label>Eletro</label>
-                  <input type="number" name="agingEletro" value={config.agingEletro} onChange={handleChange} placeholder='0' step="0.1" />
+                  <input type="number" name="agingEletro" value={config.agingEletro} onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Hipel</label>
-                  <input type="number" name="agingHipel" value={config.agingHipel} onChange={handleChange} placeholder='0' step="0.1" />
+                  <input type="number" name="agingHipel" value={config.agingHipel} onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Mercearia</label>
-                  <input type="number" name="agingMercearia" value={config.agingMercearia} onChange={handleChange} placeholder='0' step="0.1" />
+                  <input type="number" name="agingMercearia" value={config.agingMercearia} onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Perecíveis</label>
-                  <input type="number" name="agingPereceiveis" value={config.agingPereceiveis} onChange={handleChange} placeholder='0' step="0.1" />
+                  <input type="number" name="agingPereceiveis" value={config.agingPereceiveis} onChange={handleChange} step="0.1" />
                 </div>
               </div>
             </section>
@@ -350,6 +314,7 @@ const ConfiguracaoSala = () => {
                 </div>
               </div>
             </section>
+
             <section className="config-section">
               <h3 className="section-subtitle">Estoque Disponível</h3>
               <div className="input-grid">
@@ -425,7 +390,6 @@ const ConfiguracaoSala = () => {
                   <label>Melhoria Contínua</label>
                   <input type="text" name="capexMelhoriaContinuaValor" value={formatBR(config.capexMelhoriaContinuaValor)} onChange={handleMoneyChange} placeholder="0" />
                 </div>
-               
               </div>
             </section>
 
@@ -445,7 +409,6 @@ const ConfiguracaoSala = () => {
                       min="1"
                       max={config.totalRounds}
                       value={event.round}
-                      
                       onChange={(e) => handleEventChange(index, 'round', e.target.value)}
                       className="event-input-no-margin"
                     />
@@ -490,6 +453,12 @@ const ConfiguracaoSala = () => {
               </button>
             </section>
 
+            {/* 4. SEU COMPONENTE RENDERIZADO AQUI */}
+            <SalesDistributionConfig
+              numRounds={config.totalRounds}
+              onDataChange={handleVendasChange}
+            />
+
             <button
               type="button"
               className="btn-confirm"
@@ -501,6 +470,7 @@ const ConfiguracaoSala = () => {
           </form>
         </div>
       </div>
+      
       <Modal
         isOpen={showModal}
         type={isLoading ? "loading" : "confirm"}
