@@ -1,0 +1,152 @@
+
+/* ── Grid de cards ───────────────────────────────────── */
+/* 2 colunas em telas maiores, 1 coluna em mobile */
+.sdc-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ── Card por categoria ───────────────────────────────── */
+.sdc-card {
+  background: #fff;
+  border: 1px solid var(--color-border, #d9e8f5);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Header do card ───────────────────────────────────── */
+.sdc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sdc-cat-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-primary-blue, #0B5A97);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sdc-total-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sdc-total-label {
+  font-size: 0.78rem;
+  color: #777;
+  white-space: nowrap;
+}
+
+/* Input inline no header (total R$) — herda .input-group mas compacto */
+.sdc-inline-input {
+  margin: 0;
+}
+
+.sdc-inline-input input {
+  width: 110px;
+  padding: 5px 10px;
+  font-size: 0.83rem;
+}
+
+/* ── Rodadas ─────────────────────────────────────────── */
+.sdc-rounds {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sdc-round-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sdc-round-label {
+  font-size: 0.78rem;
+  color: #666;
+  min-width: 68px;
+  flex-shrink: 0;
+}
+
+/* Input de % — herda .input-group, posição relativa para o símbolo */
+.sdc-pct-input {
+  position: relative;
+  flex: 1;
+  margin: 0;
+}
+
+.sdc-pct-input input {
+  width: 100%;
+  padding-right: 24px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 0.83rem;
+}
+
+.sdc-pct-symbol {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.72rem;
+  color: #bbb;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Valor R$ ao vivo */
+.sdc-live-value {
+  font-size: 0.82rem;
+  font-weight: 600;
+  min-width: 84px;
+  text-align: right;
+  color: #ccc;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s;
+}
+
+.sdc-live-value--active {
+  color: var(--color-primary-blue, #0B5A97);
+}
+
+/* ── Barra de progresso ───────────────────────────────── */
+.sdc-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eef3f8;
+}
+
+.sdc-track {
+  flex: 1;
+  height: 5px;
+  background: #eef3f8;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.sdc-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.sdc-sum-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  min-width: 46px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s;
+}
