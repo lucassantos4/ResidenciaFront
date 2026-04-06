@@ -1,4 +1,4 @@
-import React, { use, useState } from 'react';
+import React, { /*use, */ useState } from 'react';
 import logoCencosud from '../../assets/images/cencosud.svg'; 
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -6,14 +6,17 @@ import { useNavigate } from 'react-router-dom';
 import './lobby.css'; 
 import ConfiguracaoSala from '../ConfigureRoom/ConfigureRoom';
 import { joinRoom } from '../../services/joinRoomService';
+import Modal from '../../components/Modal';
 
 const CencosudPinPage = () => {
   const [pin, setPin] = useState('');
   const [showAdditionalInputs, setShowAdditionalInputs] = useState(false);
   const [companyName, setCompanyName] = useState('');
   const [playerName, setPlayerName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try{
       const data =  await joinRoom(pin, companyName, playerName);
       console.log("Entrou na sala com sucesso:", data);
@@ -22,8 +25,10 @@ const CencosudPinPage = () => {
       console.log('Company ID armazenado:', localStorage.getItem('companyId'));
       navigate(`/waitingroom/${pin}`);
     } catch (err) {
-      console.error("Erro ao entrar na sala:", err);
+      console.error("Erro ao entrar na sala:", err );
       alert("Falha ao entrar na sala. Verifique o PIN e tente novamente.");
+    } finally {
+      setIsLoading(false);
     }
   };
   const navigate = useNavigate();
@@ -119,6 +124,13 @@ const CencosudPinPage = () => {
           <a className="footer__link" href="#">Aviso sobre cookies</a>
         </div>*/}
       </footer>
+
+      <Modal
+        isOpen={isLoading}
+        type="loading"
+        title="Entrando na sala..."
+        message="Aguarde enquanto conectamos você à sala."
+      />
     </div>
   );
 };
