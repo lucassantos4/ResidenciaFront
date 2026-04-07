@@ -60,6 +60,14 @@ const WaitingRoom = () => {
     socket.on('companies_updated', (updatedCompanies) => {
       setCompanies(updatedCompanies)
     })
+    socket.on('all_companies_confirmed', (data) => {
+  if (facilitadorToken) {
+    showToast('Todas as empresas confirmaram! Redirecionando...', 'success')
+    setTimeout(() => {
+      navigate(`/facilitador/${roomCode}`)
+    }, 1500)
+  }
+})
 
     socket.on('connect', () => setConnected(true))
     socket.on('disconnect', () => setConnected(false))
@@ -70,6 +78,7 @@ const WaitingRoom = () => {
       socket.off('disconnect')
       socket.off('room_cancelled')
       socket.off('game_started')
+      socket.off('all_companies_confirmed')
     }
   }, [roomCode])
 
