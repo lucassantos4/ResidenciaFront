@@ -164,6 +164,56 @@
   margin-bottom: 0 !important;
 }
 
+/* ── Input com sufixo (%) ── */
+.input-with-suffix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-suffix input {
+  width: 100%;
+  padding-right: 36px;
+}
+
+.input-suffix {
+  position: absolute;
+  right: 14px;
+  color: #888;
+  font-size: var(--font-size-input);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* ── Barra de progresso — Distribuição de Vendas ── */
+.vendas-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.vendas-track {
+  flex: 1;
+  height: 10px;
+  background: var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.vendas-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.vendas-sum-label {
+  font-size: var(--font-size-body);
+  font-weight: 700;
+  min-width: 55px;
+  text-align: right;
+}
+
 /* Responsividade dos eventos */
 @media (max-width: 700px) {
   .event-item {

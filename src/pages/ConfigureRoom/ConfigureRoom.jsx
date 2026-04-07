@@ -1,13 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { data, useNavigate } from 'react-router-dom';
 import "../../index.css";
 import './ConfigureRoom.css';
 import { createRoom } from '../../services/createRoomService';
 import Modal from '../../components/Modal';
 import { useToast } from '../../components/Toast.jsx';
 
-// 1. IMPORT DO SEU COMPONENTE
-import SalesDistributionConfig from "../../components/SalesDistributionConfig/SalesDistributionConfig.jsx";
 
 const ConfiguracaoSala = () => {
   const { showToast } = useToast();
@@ -19,15 +17,15 @@ const ConfiguracaoSala = () => {
     caixa: 700000,
     juros: 12,
     totalRounds: 4,
-    quebrasPereceiveis: 2,
+    quebrasPereciveis: 2,
     quebrasMercearia: 1.5,
     quebrasEletro: 0,
     quebrasHipel: 1,
     agingEletro: 1.3,
     agingHipel: 1.1,
     agingMercearia: 0.8,
-    agingPereceiveis: 5.8,
-    impostoPereceiveis: 12,
+    agingPereciveis: 5.8,
+    impostoPereciveis: 12,
     impostoMercearia: 7,
     impostoEletro: 25,
     impostoHipel: 17,
@@ -50,14 +48,32 @@ const ConfiguracaoSala = () => {
   
   const [events, setEvents] = useState([]);
 
-  // 2. SEUS TRÊS ESTADOS NOVOS
-  const [vendasDist, setVendasDist] = useState([]);
-  const [vendasValid, setVendasValid] = useState(false);
+  // Distribuição de vendas por rodada (% por round, soma = 100%)
+  const [vendasDist, setVendasDist] = useState(
+    () => Array(config.totalRounds).fill('')
+  );
 
-  const handleVendasChange = useCallback((payload, isValid) => {
-    setVendasDist(payload);
-    setVendasValid(isValid);
-  }, []);
+  // Atualiza array quando totalRounds mudar
+  const handleRoundsSync = (newTotal) => {
+    setVendasDist((prev) => {
+      if (newTotal > prev.length) {
+        return [...prev, ...Array(newTotal - prev.length).fill('')];
+      }
+      return prev.slice(0, newTotal);
+    });
+  };
+
+  const vendasSum = vendasDist.reduce((acc, v) => acc + (parseFloat(v) || 0), 0);
+  const vendasValid = Math.abs(vendasSum - 100) < 0.01;
+
+  const handleVendasChange = (index, rawValue) => {
+    const v = rawValue === '' ? '' : Math.max(0, parseFloat(rawValue) || 0);
+    setVendasDist((prev) => {
+      const updated = [...prev];
+      updated[index] = v;
+      return updated;
+    });
+  };
 
   const formatBR = (val) => {
     if (val === '' || val === undefined || val === null) return '';
@@ -80,18 +96,19 @@ const ConfiguracaoSala = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setConfig((prev) => ({
-      ...prev,
-      [name]: value === '' ? '' : parseFloat(value),
-    }));
+    const parsed = value === '' ? '' : parseFloat(value);
+    setConfig((prev) => ({ ...prev, [name]: parsed }));
+    if (name === 'totalRounds' && parsed !== '' && parsed > 0) {
+      handleRoundsSync(parsed);
+    }
   };
 
   // CORREÇÃO: Unifiquei os dois validateConfig em um só
   const validateConfig = () => {
     const required = [
-      'caixa', 'juros', 'totalRounds', 'quebrasPereceiveis', 'quebrasMercearia',
+      'caixa', 'juros', 'totalRounds', 'quebrasPereciveis', 'quebrasMercearia',
       'quebrasEletro', 'quebrasHipel', 'agingEletro', 'agingHipel', 'agingMercearia',
-      'agingPereceiveis', 'impostoPereceiveis', 'impostoMercearia', 'impostoEletro',
+      'agingPereciveis', 'impostoPereciveis', 'impostoMercearia', 'impostoEletro',
       'impostoHipel', 'custoUntPereciveis', 'custoUntMercearia', 'custoUntEletro',
       'custoUntHipel', 'capexSegurancaValor', 'capexBalancaValor', 'capexFreezerValor',
       'capexRedesValor', 'capexSiteValor', 'capexSelfCheckoutValor', 'capexMelhoriaContinuaValor',
@@ -187,27 +204,30 @@ const ConfiguracaoSala = () => {
       return; 
     }
 
-    // 3. SUA VALIDAÇÃO DE VENDAS ANTES DO CREATE ROOM
     if (!vendasValid) {
-      showToast("Configure a distribuição de vendas (cada categoria deve somar 100%)", "warning");
+      showToast(`A distribuição de vendas deve somar 100% (atual: ${vendasSum.toFixed(0)}%)`, "warning");
       return;
     }
 
-    setShowModal(false);
     setIsLoading(true); 
 
     try {
-      // 3.5 SEU PAYLOAD DE VENDAS ENVIADO PARA A API
-      const data = await createRoom({
-        ...config, 
-        vendasDistribuicao: vendasDist,
+      const demandaEstqRounds = vendasDist.map((pct) => parseFloat(pct) || 0);
+
+      const payload = {
+        ...config,
+        demandaEstqRounds,
         events
-      });
+      };
+      console.log('Payload enviado:', JSON.stringify(payload, null, 2));
+      const data = await createRoom(payload);
+      console.log("Sala", data);
       
       localStorage.setItem('facilitadorToken', data.room.facilitatorToken);
       navigate(`/waitingroom/${data.room.code}`);
     } catch (error) {
       console.error("Erro ao criar sala:", error);
+      setShowModal(false)
     } finally {
       setIsLoading(false); 
     }
@@ -254,7 +274,7 @@ const ConfiguracaoSala = () => {
               <div className="input-grid">
                 <div className="input-group">
                   <label>Perecíveis</label>
-                  <input type="number" name="quebrasPereceiveis" value={config.quebrasPereceiveis} onChange={handleChange} step="0.1" />
+                  <input type="number" name="quebrasPereciveis" value={config.quebrasPereciveis} onChange={handleChange} step="0.1" />
                 </div>
                 <div className="input-group">
                   <label>Mercearia</label>
@@ -288,7 +308,7 @@ const ConfiguracaoSala = () => {
                 </div>
                 <div className="input-group">
                   <label>Perecíveis</label>
-                  <input type="number" name="agingPereceiveis" value={config.agingPereceiveis} onChange={handleChange} step="0.1" />
+                  <input type="number" name="agingPereciveis" value={config.agingPereciveis} onChange={handleChange} step="0.1" />
                 </div>
               </div>
             </section>
@@ -298,7 +318,7 @@ const ConfiguracaoSala = () => {
               <div className="input-grid">
                 <div className="input-group">
                   <label>Perecíveis</label>
-                  <input type="number" name="impostoPereceiveis" value={config.impostoPereceiveis} onChange={handleChange} placeholder="0" />
+                  <input type="number" name="impostoPereciveis" value={config.impostoPereciveis} onChange={handleChange} placeholder="0" />
                 </div>
                 <div className="input-group">
                   <label>Mercearia</label>
@@ -394,6 +414,49 @@ const ConfiguracaoSala = () => {
             </section>
 
             <section className="config-section">
+              <h3 className="section-subtitle">Distribuição de Vendas por Rodada</h3>
+              <p style={{ fontSize: 'var(--font-size-body)', color: '#888', marginBottom: 12 }}>
+                Defina a % da demanda total em cada rodada. A soma deve ser exatamente 100%.
+              </p>
+              <div className="input-grid">
+                {vendasDist.map((pct, i) => (
+                  <div className="input-group" key={i}>
+                    <label>Rodada {i + 1}</label>
+                    <div className="input-with-suffix">
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        step={1}
+                        value={pct}
+                        placeholder="0"
+                        onChange={(e) => handleVendasChange(i, e.target.value)}
+                      />
+                      <span className="input-suffix">%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="vendas-progress-wrap">
+                <div className="vendas-track">
+                  <div
+                    className="vendas-fill"
+                    style={{
+                      width: `${Math.min(vendasSum, 100)}%`,
+                      background: vendasValid ? '#1D9E75' : vendasSum > 100 ? '#E24B4A' : 'var(--color-primary-blue)'
+                    }}
+                  />
+                </div>
+                <span
+                  className="vendas-sum-label"
+                  style={{ color: vendasValid ? '#0F6E56' : vendasSum > 100 ? '#A32D2D' : '#888' }}
+                >
+                  {vendasValid ? '100% ✓' : `${vendasSum.toFixed(0)}%`}
+                </span>
+              </div>
+            </section>
+
+            <section className="config-section">
               <h3 className="section-subtitle">Eventos que aconteceram na Rodada</h3>
               {events.length === 0 && (
                 <p className="event-empty-message">
@@ -453,11 +516,7 @@ const ConfiguracaoSala = () => {
               </button>
             </section>
 
-            {/* 4. SEU COMPONENTE RENDERIZADO AQUI */}
-            <SalesDistributionConfig
-              numRounds={config.totalRounds}
-              onDataChange={handleVendasChange}
-            />
+  
 
             <button
               type="button"

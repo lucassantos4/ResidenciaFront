@@ -8,7 +8,7 @@ import Lobby from './pages/Lobby/Lobby';
 import ConfiguracaoSala from './pages/ConfigureRoom/ConfigureRoom';
 import WaitingRoom from './pages/WaitingRoom/WaitingRoom';
 import CompanyConfigRoom from './pages/CompanyConfigRoom/CompanyConfigRoom';
-import FacilitatorDashboard from './pages/FacilitatorDashboard/FacilitatorDashboard';
+import FacilitadorDashboard from './pages/FacilitadorDashboard/FacilitadorDashboard';
 
 
 function App() {
@@ -28,7 +28,7 @@ function App() {
         {/* Rota para sala de espera */}
         <Route path="/waitingroom/:code" element={<WaitingRoom />} />
         <Route path="/config/:companyId" element={<CompanyConfigRoom />} />
-        <Route path="/facilitador/:code" element={<FacilitatorDashboard />} />
+        <Route path="/facilitador/:code" element={<FacilitadorDashboard />} />
       </Routes>
     </BrowserRouter>
   );
