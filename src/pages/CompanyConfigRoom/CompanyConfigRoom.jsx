@@ -414,7 +414,7 @@ useEffect(() => {
                 <span className="stock-center">Disponibilidade <br /> (%)</span>
               </div>
               {[
-                { key: 'Pereciveis', label: 'Perecíveis', custo: configRoom.custoUntPereciveis || 0, imposto: configRoom.impostoPereceiveis || 0 },
+                { key: 'Pereciveis', label: 'Perecíveis', custo: configRoom.custoUntPereciveis || 0, imposto: configRoom.impostoPereciveis || 0 },
                 { key: 'Mercearia', label: 'Mercearia', custo: configRoom.custoUntMercearia || 0, imposto: configRoom.impostoMercearia || 0 },
                 { key: 'Eletro', label: 'Eletro', custo: configRoom.custoUntEletro || 0, imposto: configRoom.impostoEletro || 0 },
                 { key: 'Hipel', label: 'Hipel', custo: configRoom.custoUntHipel || 0, imposto: configRoom.impostoHipel || 0 },
