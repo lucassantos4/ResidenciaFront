@@ -4,6 +4,8 @@ import { getCompanySettings, saveCompanySettings } from '../../services/CompanyS
 import "../../index.css";
 import '../../assets/css/RoomConfig.css';
 import './CompanyConfigRoom.css';
+import { io } from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
 
 const CARGOS = ['Serviços', 'Abastecimento', 'Comercial', 'Operacional', 'Gerente'];
 
@@ -19,7 +21,24 @@ const CAPEX_ITEMS = [
 
 const CompanyConfigRoom = () => {
   const code = localStorage.getItem('codeRoom');
+  const navigate = useNavigate();
   const [configRoom, setConfigRoom] = useState({});
+  const [socket, setSocket] = useState(null);
+  useEffect(() => {
+    const newSocket = io(import.meta.env.VITE_API_URL);
+    setSocket(newSocket);
+
+    newSocket.emit('join_room', code);
+
+    newSocket.on('all_companies_confirmed', (data) => {
+      console.log('Todas as empresas confirmaram!', data);
+      navigate(`/ranking`); // ✅ AGORA FUNCIONA
+    });
+
+    return () => {
+      newSocket.disconnect();
+    };
+  }, [navigate]);  // ✅ NOVO
 
   const { companyId } = useParams();
 
@@ -188,7 +207,6 @@ useEffect(() => {
       setSaving(false);
     }
   };
-  
 
 // Função para formatar percentual com até 2 casas decimais
 

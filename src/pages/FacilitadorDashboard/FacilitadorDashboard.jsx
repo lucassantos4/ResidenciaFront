@@ -67,7 +67,7 @@ const FacilitadorDashboard = () => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'x-facilitator-token': '2c0c3c31-091f-4cb2-b73e-76ae65c4cc19'
+        'x-facilitator-token': `${facilitadorToken}`,
 
       },
     })
@@ -124,7 +124,7 @@ const FacilitadorDashboard = () => {
 
         <div className="dash-info-card">
           <span className="dash-info-label">Empresas Conectadas</span>
-          <strong className="dash-info-value">{companies}</strong>
+          <strong className="dash-info-value">{resultado.length}</strong>
         </div>
 
         <div className="dash-info-card">
