@@ -4,11 +4,14 @@ import "../../index.css";
 import './ConfigureRoom.css';
 import { createRoom } from '../../services/createRoomService';
 import Modal from '../../components/Modal';
+import ErrorModal from '../../components/ErroModal';
 import { useToast } from '../../components/Toast.jsx';
 
 
 const ConfiguracaoSala = () => {
   const { showToast } = useToast();
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -127,34 +130,46 @@ const ConfiguracaoSala = () => {
     const zeroFields = notZeroFields.filter(field => config[field] === 0);
 
     if (missingFields.length > 0) {
-      setTimeout(() => showToast(`Campos vazios: ${missingFields.join(', ')}`, 'warning'), 100);
+      setErrorMessage(`Campos vazios: ${missingFields.join(', ')}`);
+      setIsErrorModalOpen(true);
+      setShowModal(false); // Fecha o modal de confirmação que estava aberto
       return false;
     }
 
     if (zeroFields.length > 0) {
-      setTimeout(() => showToast(`Não podem ser 0: ${zeroFields.join(', ')}`, 'warning'), 500);
+      setErrorMessage(`Os seguintes campos não podem ser 0: ${zeroFields.join(', ')}`);
+      setIsErrorModalOpen(true);
+      setShowModal(false);
       return false;
     }
 
     if (Number(config.caixa) <= 0) {
-      showToast("O Caixa Inicial deve ser maior que zero.", "warning");
+      setErrorMessage("O Caixa Inicial deve ser maior que zero.");
+      setIsErrorModalOpen(true);
+      setShowModal(false);
       return false;
     }
 
     if (Number(config.totalRounds) <= 0) {
-      showToast("O Total de Rounds deve ser pelo menos 1.", "warning");
+      setErrorMessage("O Total de Rounds deve ser pelo menos 1.");
+      setIsErrorModalOpen(true);
+      setShowModal(false);
       return false;
     }
 
     if (Number(config.juros) < 0) {
-      showToast("A Taxa de Juros não pode ser negativa.", "warning");
+      setErrorMessage("A Taxa de Juros não pode ser negativa.");
+      setIsErrorModalOpen(true);
+      setShowModal(false);
       return false;
     }
 
     const keys = Object.keys(config);
     for (let key of keys) {
       if (Number(config[key]) < 0) {
-        showToast(`O campo ${key} não pode ser negativo.`, "warning");
+        setErrorMessage(`O campo ${key} não pode ser negativo.`);
+        setIsErrorModalOpen(true);
+        setShowModal(false);
         return false;
       }
     }
@@ -205,7 +220,9 @@ const ConfiguracaoSala = () => {
     }
 
     if (!vendasValid) {
-      showToast(`A distribuição de vendas deve somar 100% (atual: ${vendasSum.toFixed(0)}%)`, "warning");
+      setErrorMessage(`A distribuição de vendas deve somar 100% (atual: ${vendasSum.toFixed(0)}%)`);
+      setIsErrorModalOpen(true); 
+      setShowModal(false); 
       return;
     }
 
@@ -226,8 +243,10 @@ const ConfiguracaoSala = () => {
       localStorage.setItem('facilitadorToken', data.room.facilitatorToken);
       navigate(`/waitingroom/${data.room.code}`);
     } catch (error) {
-      console.error("Erro ao criar sala:", error);
-      setShowModal(false)
+      setErrorMessage(error.message || "Não foi possível criar a sala. Verifique a conexão e tente novamente.");
+      setIsErrorModalOpen(true); 
+      setShowModal(false); 
+      
     } finally {
       setIsLoading(false); 
     }
@@ -547,6 +566,12 @@ const ConfiguracaoSala = () => {
             setShowModal(false);
           }
         }}
+      />
+
+      <ErrorModal 
+        isOpen={isErrorModalOpen} 
+        onClose={() => setIsErrorModalOpen(false)} 
+        errorMessage={errorMessage} 
       />
     </div>
   );

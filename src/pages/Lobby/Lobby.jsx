@@ -7,10 +7,13 @@ import './lobby.css';
 import ConfiguracaoSala from '../ConfigureRoom/ConfigureRoom';
 import { joinRoom } from '../../services/joinRoomService';
 import Modal from '../../components/Modal';
+import ErrorModal from '../../components/ErroModal';
 
 const CencosudPinPage = () => {
   const [pin, setPin] = useState('');
   const [showAdditionalInputs, setShowAdditionalInputs] = useState(false);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+const [errorMessage, setErrorMessage] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -25,8 +28,10 @@ const CencosudPinPage = () => {
       console.log('Company ID armazenado:', localStorage.getItem('companyId'));
       navigate(`/waitingroom/${pin}`);
     } catch (err) {
-      console.error("Erro ao entrar na sala:", err );
-      alert("Falha ao entrar na sala. Verifique o PIN e tente novamente.");
+      console.error("Erro ao entrar na sala:", err);
+    
+      setErrorMessage(err.response?.data?.message || "Falha ao entrar na sala. Verifique o PIN e tente novamente.");
+      setIsErrorModalOpen(true);
     } finally {
       setIsLoading(false);
     }
@@ -130,6 +135,12 @@ const CencosudPinPage = () => {
         type="loading"
         title="Entrando na sala..."
         message="Aguarde enquanto conectamos você à sala."
+      />
+
+      <ErrorModal 
+        isOpen={isErrorModalOpen} 
+        onClose={() => setIsErrorModalOpen(false)} 
+        errorMessage={errorMessage} 
       />
     </div>
   );
