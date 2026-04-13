@@ -1,3 +1,4 @@
+import Modal from '../../components/Modal';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getCompanySettings, saveCompanySettings } from '../../services/CompanyService';
@@ -23,6 +24,9 @@ const CompanyConfigRoom = () => {
   const code = localStorage.getItem('codeRoom');
   const navigate = useNavigate();
   const [configRoom, setConfigRoom] = useState({});
+  const [warning, setWarning] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState('');
   const [socket, setSocket] = useState(null);
   useEffect(() => {
     const newSocket = io(import.meta.env.VITE_API_URL);
@@ -32,7 +36,8 @@ const CompanyConfigRoom = () => {
 
     newSocket.on('all_companies_confirmed', (data) => {
       console.log('Todas as empresas confirmaram!', data);
-      navigate(`/ranking`); // ✅ AGORA FUNCIONA
+      setTimeout(() => {
+        navigate(`/ranking`);}, 2000); 
     });
 
     return () => {
@@ -199,10 +204,13 @@ useEffect(() => {
       if (result.jurosAplicado > 0) {
         msg += `\n⚠️ Juros aplicados: R$ ${result.jurosAplicado.toLocaleString('pt-BR')}`;
       }
-      alert(msg);
+      setConfirmMessage(msg);
+      setShowConfirmModal(true);
     } catch (err) {
       console.error(err);
       setError(err.message || 'Erro ao salvar configurações');
+      setWarning(true);
+      setTimeout(() => setWarning(false), 3000);
     } finally {
       setSaving(false);
     }
@@ -496,6 +504,18 @@ useEffect(() => {
           </button>
         </div>
       </div>
+      <Modal
+        isOpen={showConfirmModal}
+        type="confirm"
+        title="Estratégia Confirmada"
+        message={confirmMessage}
+      />
+      <Modal
+        isOpen={warning}
+        type="warning"
+        title="Erro ao salvar Dados"
+        message="Erro ao salvar os dados"
+      />
     </div>
   );
 };
