@@ -42,7 +42,7 @@ const WaitingRoom = () => {
       if (companyId !== null) {
         setTimeout(() => {
           showToast('O jogo começou! Redirecionando...', 'success')
-          navigate(`/config/${companyId}`)
+          navigate(`/gerente-quiz/${companyId}`)
         }, 1500)
       }
     })

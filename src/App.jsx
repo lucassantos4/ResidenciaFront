@@ -9,6 +9,7 @@ import ConfiguracaoSala from './pages/ConfigureRoom/ConfigureRoom';
 import WaitingRoom from './pages/WaitingRoom/WaitingRoom';
 import CompanyConfigRoom from './pages/CompanyConfigRoom/CompanyConfigRoom';
 import FacilitadorDashboard from './pages/FacilitadorDashboard/FacilitadorDashboard';
+import GerenteQuizTime from './pages/GerenteQuizTime/GerenteQuizTime';
 import GerenteRanking from './pages/GerenteRanking/GerenteRanking';
 
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/configuracaodesala" element={<ConfiguracaoSala />} />
         {/* Rota para sala de espera */}
         <Route path="/waitingroom/:code" element={<WaitingRoom />} />
+        <Route path="/gerente-quiz/:companyId" element={<GerenteQuizTime />} />
         <Route path="/config/:companyId" element={<CompanyConfigRoom />} />
         <Route path="/facilitador/:code" element={<FacilitadorDashboard />} />
         <Route path="/ranking" element={<GerenteRanking />} />
