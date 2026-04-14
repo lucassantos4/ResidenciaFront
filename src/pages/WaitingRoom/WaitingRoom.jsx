@@ -29,6 +29,9 @@ const WaitingRoom = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [showModalLeave, setShowModalLeave] = useState(false)
   const [showModalStart, setShowModalStart] = useState(false)
+  const [questionarioLiberado, setQuestionarioLiberado] = useState(
+    () => localStorage.getItem(`questionario_liberado_${roomCode}`) === 'true'
+  )
   //game_started
   useEffect(() => {
     const socket = io(import.meta.env.VITE_API_URL)
@@ -42,7 +45,12 @@ const WaitingRoom = () => {
       if (companyId !== null) {
         setTimeout(() => {
           showToast('O jogo começou! Redirecionando...', 'success')
-          navigate(`/gerente-quiz/${companyId}`)
+          if (facilitadorToken) {
+            navigate(`/gerente-quiz/${companyId}`)
+            return
+          }
+
+          navigate(`/questionario/${companyId}`)
         }, 1500)
       }
     })
@@ -86,12 +94,17 @@ const WaitingRoom = () => {
     setIsLoading(true)
     console.log('facilitadorToken:', facilitadorToken)
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/rooms/${roomCode}/start`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/rooms/${roomCode}/start`, {
         method: 'PATCH',
         headers: {
           'x-facilitator-token': `${facilitadorToken}`,
         },
       })
+
+      if (!questionarioLiberado) {
+        localStorage.setItem(`questionario_liberado_${roomCode}`, 'true')
+        setQuestionarioLiberado(true)
+      }
     } catch (error) {
       console.error('Erro ao iniciar jogo:', error)
       setShowModalStart(false)
@@ -214,7 +227,11 @@ const WaitingRoom = () => {
                 </div>
                 <div className="instruction-item">
                   <div className="instruction-number">3</div>
-                  <p className="instruction-text">Clique em "Iniciar Jogo" quando todos estiverem prontos.</p>
+                  <p className="instruction-text">Clique em "Liberar Questionário" para enviar os participantes para a etapa de questionário.</p>
+                </div>
+                <div className="instruction-item">
+                  <div className="instruction-number">4</div>
+                  <p className="instruction-text">Depois que eles clicarem em "Estou pronto", clique em "Iniciar Jogo".</p>
                 </div>
               </>
             ) : (
@@ -248,7 +265,7 @@ const WaitingRoom = () => {
               onClick={() => setShowModalStart(true)}
               disabled={companies.length === 0}
             >
-              Iniciar Jogo
+              {questionarioLiberado ? 'Iniciar Jogo' : 'Liberar Questionário'}
             </button>
           </>
         ) : (
@@ -296,9 +313,9 @@ const WaitingRoom = () => {
   <Modal 
     isOpen={showModalStart}
     type={isLoading ? "loading" : "confirm"}
-    title={isLoading ? "Iniciando sala..." : "Confirmar Início"}
-    message="Tem certeza que deseja iniciar a sala? Todos os participantes serão notificados."
-    confirmText="Iniciar Sala"
+    title={isLoading ? (questionarioLiberado ? "Iniciando jogo..." : "Liberando questionário...") : (questionarioLiberado ? "Confirmar início do jogo" : "Confirmar liberação do questionário")}
+    message={questionarioLiberado ? "Tem certeza que deseja iniciar o jogo para os participantes prontos?" : "Tem certeza que deseja liberar o questionário para os participantes?"}
+    confirmText={questionarioLiberado ? "Iniciar jogo" : "Liberar questionário"}
     cancelText="Não, voltar"
     onConfirm={() => {
           if (!isLoading) { 
@@ -307,7 +324,7 @@ const WaitingRoom = () => {
         }}
         onCancel={() => {
           if (!isLoading) { 
-            setShowModal(false);
+            setShowModalStart(false);
           }
         }}
   />

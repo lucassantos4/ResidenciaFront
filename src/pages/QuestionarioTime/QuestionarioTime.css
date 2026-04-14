@@ -1,0 +1,205 @@
+.questionario-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at top left, rgba(255, 105, 10, 0.18), transparent 24%),
+    radial-gradient(circle at bottom right, rgba(11, 90, 151, 0.22), transparent 26%),
+    linear-gradient(135deg, #f7fbff 0%, #eef5fb 48%, #ffffff 100%);
+}
+
+.questionario-card {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  padding: 2.5rem;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(11, 90, 151, 0.12);
+  box-shadow: 0 28px 90px rgba(18, 45, 84, 0.16);
+  overflow: hidden;
+}
+
+.questionario-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(11, 90, 151, 0.08), transparent 35%, rgba(255, 105, 10, 0.06));
+  pointer-events: none;
+}
+
+.questionario-hero,
+.questionario-details,
+.questionario-body {
+  position: relative;
+  z-index: 1;
+}
+
+.questionario-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: rgba(11, 90, 151, 0.08);
+  color: var(--color-primary-blue);
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+
+.questionario-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3.2vw, 3.1rem);
+  line-height: 1.05;
+  color: var(--color-text-dark);
+}
+
+.questionario-hero p {
+  margin: 1rem 0 0;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  line-height: 1.75;
+  max-width: 56ch;
+}
+
+.questionario-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.8rem;
+}
+
+.questionario-info-card {
+  padding: 1.15rem 1.25rem;
+  border-radius: 18px;
+  background: var(--color-background-light);
+  border: 1px solid rgba(11, 90, 151, 0.12);
+}
+
+.questionario-info-highlight {
+  background: linear-gradient(180deg, rgba(11, 90, 151, 0.08), rgba(255, 105, 10, 0.06));
+}
+
+.questionario-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.questionario-info-card strong {
+  display: block;
+  font-size: 1.06rem;
+  color: var(--color-primary-blue);
+}
+
+.questionario-body {
+  margin-top: 2rem;
+}
+
+.questionario-text {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  color: var(--color-text-dark);
+  line-height: 1.75;
+}
+
+.questionario-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: 20px;
+  background: rgba(11, 90, 151, 0.06);
+  border: 1px solid rgba(11, 90, 151, 0.12);
+  margin-bottom: 1.5rem;
+}
+
+.questionario-callout-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--color-primary-blue);
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.questionario-callout strong {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--color-text-dark);
+  font-size: 1rem;
+}
+
+.questionario-callout span {
+  display: block;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.questionario-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 56px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--color-action-orange) 0%, #ff8532 100%);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 18px 30px rgba(255, 105, 10, 0.24);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.questionario-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 22px 36px rgba(255, 105, 10, 0.28);
+}
+
+.questionario-button:active {
+  transform: translateY(0);
+}
+
+.questionario-button:disabled {
+  opacity: 0.7;
+  cursor: default;
+  transform: none;
+}
+
+.questionario-feedback {
+  margin-top: 1rem;
+  text-align: center;
+  color: var(--color-primary-blue);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .questionario-card {
+    padding: 1.5rem;
+    border-radius: 24px;
+  }
+
+  .questionario-details {
+    grid-template-columns: 1fr;
+  }
+
+  .questionario-callout {
+    padding: 1rem;
+  }
+}

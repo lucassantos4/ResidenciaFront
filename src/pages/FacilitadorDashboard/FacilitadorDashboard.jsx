@@ -1,10 +1,9 @@
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import '../../index.css';
 import '../../assets/css/RoomConfig.css';
 import './FacilitadorDashboard.css';
 import { io } from 'socket.io-client'
-import { useToast } from '../../components/Toast';
 import Modal from '../../components/Modal'
 
 const FacilitadorDashboard = () => {
@@ -17,12 +16,19 @@ const FacilitadorDashboard = () => {
   const [resultado, setResultado] = useState([]);
   const [companies, setCompanies] = useState([]);
   const facilitadorToken = localStorage.getItem('facilitadorToken')
-  const socket = io(import.meta.env.VITE_API_URL);
+
+  const readyCount = companies.filter((company) => company.ready).length;
+  const totalParticipants = companies.length;
   // Buscar dados da sala
   useEffect(() => {
     const socket = io(import.meta.env.VITE_API_URL);
 
     socket.emit('join_room', code);
+
+    fetch(`${import.meta.env.VITE_API_URL}/companies/${code}`)
+      .then((response) => response.json())
+      .then((data) => setCompanies(Array.isArray(data) ? data : []))
+      .catch((err) => console.error('Erro ao buscar empresas:', err));
 
     socket.on('connect', () => console.log('Socket conectado:', socket.id));
     socket.on('disconnect', () => console.log('Socket desconectado'));
@@ -32,10 +38,25 @@ const FacilitadorDashboard = () => {
       setCompanies(updatedCompanies);
     });
 
+    socket.on('participants_ready_updated', ({ ready, total }) => {
+      setCompanies((prev) => {
+        if (prev.length === total) {
+          const next = [...prev];
+          for (let i = 0; i < next.length; i += 1) {
+            next[i] = { ...next[i], ready: i < ready };
+          }
+          return next;
+        }
+        return prev;
+      });
+    });
+
     return () => {
       socket.off('companies_updated');
+      socket.off('participants_ready_updated');
       socket.off('connect');
       socket.off('disconnect');
+      socket.disconnect();
     };
   }, [code]);
   useEffect(() => {
@@ -124,7 +145,12 @@ const FacilitadorDashboard = () => {
 
         <div className="dash-info-card">
           <span className="dash-info-label">Empresas Conectadas</span>
-          <strong className="dash-info-value">{resultado.length}</strong>
+          <strong className="dash-info-value">{totalParticipants}</strong>
+        </div>
+
+        <div className="dash-info-card">
+          <span className="dash-info-label">Participantes Prontos</span>
+          <strong className="dash-info-value">{readyCount} / {totalParticipants}</strong>
         </div>
 
         <div className="dash-info-card">
@@ -302,17 +328,13 @@ const FacilitadorDashboard = () => {
               })}
             </div>
           </section>
-          <div className="waiting-actions">
-            {facilitadorToken && (
-              <button
-                className="btn-start"
-                onClick={() => setShowModalStart(true)}
-                disabled={companies.length === 0}
-              >
-                Próxima rodada
+          {facilitadorToken && (
+            <div className="waiting-actions">
+              <button className="btn-start" disabled>
+                Próxima rodada (em preparação)
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
       <Modal

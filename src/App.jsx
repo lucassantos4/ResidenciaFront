@@ -11,6 +11,7 @@ import CompanyConfigRoom from './pages/CompanyConfigRoom/CompanyConfigRoom';
 import FacilitadorDashboard from './pages/FacilitadorDashboard/FacilitadorDashboard';
 import GerenteQuizTime from './pages/GerenteQuizTime/GerenteQuizTime';
 import GerenteRanking from './pages/GerenteRanking/GerenteRanking';
+import QuestionarioTime from './pages/QuestionarioTime/QuestionarioTime';
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
         <Route path="/configuracaodesala" element={<ConfiguracaoSala />} />
         {/* Rota para sala de espera */}
         <Route path="/waitingroom/:code" element={<WaitingRoom />} />
+        <Route path="/questionario/:companyId" element={<QuestionarioTime />} />
         <Route path="/gerente-quiz/:companyId" element={<GerenteQuizTime />} />
         <Route path="/config/:companyId" element={<CompanyConfigRoom />} />
         <Route path="/facilitador/:code" element={<FacilitadorDashboard />} />

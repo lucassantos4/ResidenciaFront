@@ -24,6 +24,8 @@ const [errorMessage, setErrorMessage] = useState('');
       const data =  await joinRoom(pin, companyName, playerName);
       console.log("Entrou na sala com sucesso:", data);
       localStorage.setItem('companyId', data.company.id);
+      localStorage.setItem('companyName', data.company.name || companyName);
+      localStorage.setItem('playerName', data.company.managerName || playerName);
       localStorage.setItem('codeRoom', pin);
       console.log('Company ID armazenado:', localStorage.getItem('companyId'));
       navigate(`/waitingroom/${pin}`);
