@@ -5,6 +5,7 @@ import '../../assets/css/RoomConfig.css';
 import './GerenteRanking.css';
 import { io } from 'socket.io-client';
 import Modal from '../../components/Modal';
+import GraficoVendas from '../../components/GraficoVendas';
 
 const GerenteRanking = () => {
   const companyId = localStorage.getItem('companyId');
@@ -180,6 +181,9 @@ const GerenteRanking = () => {
           {meuResultado && (
             <section className="config-section">
               <h3 className="section-subtitle">Suas Vendas</h3>
+              <div style={{ marginBottom: '25px' }}>
+                <GraficoVendas data={meuResultado} />
+              </div>
               <div className="dash-table">
                 <div className="dash-table-header gr-vendas-header">
                   <span>Categoria</span>

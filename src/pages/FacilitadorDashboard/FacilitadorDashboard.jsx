@@ -4,8 +4,8 @@ import '../../index.css';
 import '../../assets/css/RoomConfig.css';
 import './FacilitadorDashboard.css';
 import { io } from 'socket.io-client'
-import { useToast } from '../../components/Toast';
 import Modal from '../../components/Modal'
+import GraficoDemandaEmpresas from '../../components/GraficoDemandaEmpresas';
 
 const FacilitadorDashboard = () => {
   const { code } = useParams();
@@ -16,6 +16,7 @@ const FacilitadorDashboard = () => {
   const [roundAtual, setRoundAtual] = useState(1);
   const [resultado, setResultado] = useState([]);
   const [companies, setCompanies] = useState([]);
+  const [historicoDemanda, setHistoricoDemanda] = useState([]);
   const facilitadorToken = localStorage.getItem('facilitadorToken')
   const socket = io(import.meta.env.VITE_API_URL);
   // Buscar dados da sala
@@ -93,6 +94,50 @@ const FacilitadorDashboard = () => {
 
   }, [code]);
 
+  // NOVO: Buscar histórico de todas as rodadas até a atual para o Gráfico de Evolução
+  useEffect(() => {
+    const carregarHistorico = async () => {
+      const novoHistorico = [];
+      
+      // Faz um loop da rodada 1 até a rodada atual
+      for (let r = 1; r <= roundAtual; r++) {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/rooms/${code}/resultado/${r}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-facilitator-token': `${facilitadorToken}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            
+            // Monta o objeto no formato que o Recharts entende
+            const pontoRodada = { rodada: `Rodada ${r}` };
+            
+            data.forEach(empresa => {
+              const nome = empresa.company?.name || `Empresa ${empresa.id}`;
+              const valorDemanda = (empresa.percentualDemanda || 0) * 100;
+              pontoRodada[nome] = parseFloat(valorDemanda.toFixed(1));
+            });
+            
+            novoHistorico.push(pontoRodada);
+          }
+        } catch (err) {
+          console.error(`Erro ao buscar histórico da rodada ${r}:`, err);
+        }
+      }
+      
+      // Salva o histórico completo no state
+      setHistoricoDemanda(novoHistorico);
+    };
+
+    if (code && facilitadorToken) {
+      carregarHistorico();
+    }
+  }, [code, roundAtual, facilitadorToken]); 
+  // O array de dependências com roundAtual garante que ele vai atualizar o gráfico toda vez que a rodada passar!
 
   const fmt = (v) => {
     if (v === undefined || v === null || isNaN(v)) return 'R$ 0,00';
@@ -139,6 +184,7 @@ const FacilitadorDashboard = () => {
           {/* SEÇÃO 1: Resultados das Empresas */}
           <section className="config-section">
             <h3 className="section-subtitle">Resultados das Empresas</h3>
+            <GraficoDemandaEmpresas historicoDados={historicoDemanda} />
             <div className="dash-table">
               <div className="dash-table-header">
                 <span>Empresa</span>
