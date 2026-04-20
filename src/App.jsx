@@ -12,7 +12,7 @@ import FacilitadorDashboard from './pages/FacilitadorDashboard/FacilitadorDashbo
 import GerenteQuizTime from './pages/GerenteQuizTime/GerenteQuizTime';
 import GerenteRanking from './pages/GerenteRanking/GerenteRanking';
 import QuizResults from './pages/QuizResults/QuizResults';
-import QuizResultsManual from './pages/QuizResults/QuizResultsManual';
+
 
 
 function App() {
@@ -36,7 +36,6 @@ function App() {
         <Route path="/facilitador/:code" element={<FacilitadorDashboard />} />
         <Route path="/ranking" element={<GerenteRanking />} />
         <Route path="/quiz/:code" element={<QuizResults />} />
-        <Route path="/quiz-manual" element={<QuizResultsManual />} />
         <Route path="/facilitador/:code/quiz" element={<QuizResults />}/> 
       </Routes>
     </BrowserRouter>
