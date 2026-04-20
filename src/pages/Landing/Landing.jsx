@@ -69,66 +69,10 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Seção Sobre */}
-      <section id="sobre" className="about">
-        <div className="container">
-          <h2>O que é a plataforma?</h2>
-          <p>
-            A <strong>Cencosud Learning</strong> é um ecossistema digital desenvolvido
-            para transformar o treinamento corporativo tradicional em uma jornada imersiva.
-          </p>
-          <div className="about-details">
-            <p>
-              Utilizando mecânicas de jogos, conectamos objetivos estratégicos ao desenvolvimento
-              prático, garantindo retenção de conhecimento.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Seção Características */}
-      <section  id="caracteristicas" className="features">
-        <div className="container">
-          <div className="section-header">
-            <h2>Características do Game</h2>
-            <p>Uma simulação imersiva focada na gestão e tomada de decisão estratégica.</p>
-          </div>
-          <div className="feature-grid">
-            <div className="feature-card">
-              <div className="icon">✓</div>
-              <h3>Simulação</h3>
-              <p>Simulação de cenários com feedback.</p>
-            </div>
-            <div className="feature-card">
-              <div className="icon">✓</div>
-              <h3>Mobile Friendly</h3>
-              <p>Interface intuitiva acessível de qualquer dispositivo.</p>
-            </div>
-            <div className="feature-card">
-              <div className="icon">✓</div>
-              <h3>Gamificação</h3>
-              <p>Experiência gamificada de resolução de conflitos.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Seção Capacidades */}
-      <section className="capabilities">
-        <div className="container">
-          <h2>O que o usuário pode fazer?</h2>
-          <div className="cap-list">
-            <div className="cap-item">Autonomia para explorar ambientes virtuais.</div>
-            <div className="cap-item">Simulações de atendimento, gestão de estoque e resolução de conflitos.</div>
-            <div className="cap-item">Interação com rankings.</div>
-          </div>
-        </div>
-      </section>
-
       {/* Footer conforme o estilo CSS (dark-tuna) */}
       <footer>
         <div className="container">
-          <p>© 2026 Cencosud Learning. Todos os direitos reservados.</p>
+          <p>© 2026 Cencosud Learning</p>
         </div>
       </footer>
     </div>
