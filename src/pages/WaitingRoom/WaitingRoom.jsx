@@ -44,6 +44,11 @@ const WaitingRoom = () => {
           showToast('O jogo começou! Redirecionando...', 'success')
           navigate(`/gerente-quiz/${companyId}`)
         }, 1500)
+      } else if (facilitadorToken !== null) {
+        setTimeout(() => {
+          showToast('O jogo começou! Redirecionando...', 'success')
+          navigate(`/facilitador-quiz/${roomCode}`)
+        }, 1500)
       }
     })
     socket.on('room_cancelled', () => {

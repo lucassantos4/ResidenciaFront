@@ -10,6 +10,7 @@ import WaitingRoom from './pages/WaitingRoom/WaitingRoom';
 import CompanyConfigRoom from './pages/CompanyConfigRoom/CompanyConfigRoom';
 import FacilitadorDashboard from './pages/FacilitadorDashboard/FacilitadorDashboard';
 import GerenteQuizTime from './pages/GerenteQuizTime/GerenteQuizTime';
+import FacilitadorQuizTime from './pages/FacilitadorQuizTime/FacilitadorQuizTime';
 import GerenteRanking from './pages/GerenteRanking/GerenteRanking';
 
 
@@ -30,6 +31,7 @@ function App() {
         {/* Rota para sala de espera */}
         <Route path="/waitingroom/:code" element={<WaitingRoom />} />
         <Route path="/gerente-quiz/:companyId" element={<GerenteQuizTime />} />
+        <Route path="/facilitador-quiz/:code" element={<FacilitadorQuizTime />} />
         <Route path="/config/:companyId" element={<CompanyConfigRoom />} />
         <Route path="/facilitador/:code" element={<FacilitadorDashboard />} />
         <Route path="/ranking" element={<GerenteRanking />} />
