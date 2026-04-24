@@ -11,7 +11,6 @@ import CompanyConfigRoom from './pages/CompanyConfigRoom/CompanyConfigRoom';
 import FacilitadorDashboard from './pages/FacilitadorDashboard/FacilitadorDashboard';
 import GerenteQuizTime from './pages/GerenteQuizTime/GerenteQuizTime';
 import GerenteRanking from './pages/GerenteRanking/GerenteRanking';
-import QuizResults from './pages/QuizResults/QuizResults';
 
 
 
@@ -35,8 +34,6 @@ function App() {
         <Route path="/config/:companyId" element={<CompanyConfigRoom />} />
         <Route path="/facilitador/:code" element={<FacilitadorDashboard />} />
         <Route path="/ranking" element={<GerenteRanking />} />
-        <Route path="/quiz/:code" element={<QuizResults />} />
-        <Route path="/facilitador/:code/quiz" element={<QuizResults />}/> 
       </Routes>
     </BrowserRouter>
   );
