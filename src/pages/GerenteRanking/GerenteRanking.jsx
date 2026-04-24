@@ -105,8 +105,10 @@ const GerenteRanking = () => {
             </div>
           </>
         )}
+        
       </aside>
 
+        
       {/* Painel principal */}
   
         
@@ -161,17 +163,50 @@ const GerenteRanking = () => {
                   <span className="gr-stat-label">Preco Medio da Cesta</span>
                   <strong className="gr-stat-value">{fmt(meuResultado.precoMedioCesta)}</strong>
                 </div>
+
                 <div className="gr-stat-card">
                   <span className="gr-stat-label">Disponibilidade</span>
                   <strong className="gr-stat-value">{fmtPercent(meuResultado.disponibilidade)}</strong>
                 </div>
+
                 <div className="gr-stat-card">
                   <span className="gr-stat-label">CSAT</span>
                   <strong className="gr-stat-value">{fmtPercent(meuResultado.csat)}</strong>
                 </div>
+
                 <div className="gr-stat-card">
                   <span className="gr-stat-label">Part. Demanda</span>
                   <strong className="gr-stat-value">{fmtPercent((meuResultado.percentualDemanda || 0) * 100)}</strong>
+                </div>
+
+                <div className="gr-stat-card">
+                  <span className="gr-stat-label">Receita Bruta</span>
+                  <strong className="gr-stat-value">{fmt(meuResultado.receitaBruta)}</strong>
+                </div>
+
+                <div className="gr-stat-card">
+                  <span className="gr-stat-label">Penalidade</span>
+                  <strong
+                    className="gr-stat-value"
+                    style={{ color: (meuResultado.valorPenalidade || 0) > 0 ? '#e74c3c' : 'var(--color-primary-blue)' }}
+                  >
+                    {fmt(meuResultado.valorPenalidade)}
+                  </strong>
+                </div>
+
+                <div className="gr-stat-card">
+                  <span className="gr-stat-label">Penalidade (%)</span>
+                  <strong
+                    className="gr-stat-value"
+                    style={{ color: (meuResultado.percentualPenalidade || 0) > 0 ? '#e74c3c' : 'var(--color-primary-blue)' }}
+                  >
+                    {fmtPercent(meuResultado.percentualPenalidade)}
+                  </strong>
+                </div>
+
+                <div className="gr-stat-card">
+                  <span className="gr-stat-label">Receita Final</span>
+                  <strong className="gr-stat-value">{fmt(meuResultado.receitaTotal)}</strong>
                 </div>
               </div>
             </section>
