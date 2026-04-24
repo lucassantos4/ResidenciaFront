@@ -194,11 +194,22 @@ useEffect(() => {
     console.log("capex selecionado:", capexSelected);
   }, [capexSelected]);
 
+  const mapCapexFields = (data) => ({
+    ...data,
+    capexSeguranca: data.capexSegurancaValor,
+    capexBalanca: data.capexBalancaValor,
+    capexRedes: data.capexRedesValor,
+    capexSite: data.capexSiteValor,
+    capexSelfCheckout: data.capexSelfCheckoutValor,
+    capexMelhoriaContinua: data.capexMelhoriaContinuaValor,
+    // capexFreezer: data.capexFreezerValor, // só se o backend aceitar esse campo!
+  });
+
   const handleSave = async () => {
     setSaving(true);
     setError(null);
     try {
-      const payload = formData;
+      const payload = mapCapexFields(formData);
       const result = await saveCompanySettings(companyId, payload);
       let msg = result.message || 'Estratégia confirmada com sucesso!';
       if (result.jurosAplicado > 0) {

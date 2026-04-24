@@ -13,6 +13,7 @@ import GerenteQuizTime from './pages/GerenteQuizTime/GerenteQuizTime';
 import GerenteRanking from './pages/GerenteRanking/GerenteRanking';
 
 
+
 function App() {
   return (
     <BrowserRouter>
