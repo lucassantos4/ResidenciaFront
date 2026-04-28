@@ -72,6 +72,9 @@ const FacilitadorQuizTime = () => {
                     'x-facilitator-token': facilitadorToken,
                 },
             });
+
+            // Ir para o dashboard do facilitador
+            navigate(`/facilitador/${code}`);
         } catch (error) {
             console.error('Erro ao iniciar partida:', error);
         }

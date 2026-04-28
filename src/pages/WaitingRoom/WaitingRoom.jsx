@@ -44,12 +44,9 @@ const WaitingRoom = () => {
           showToast('O jogo começou! Redirecionando...', 'success')
           navigate(`/gerente-quiz/${companyId}`)
         }, 1500)
-      } else if (facilitadorToken !== null) {
-        setTimeout(() => {
-          showToast('O jogo começou! Redirecionando...', 'success')
-          navigate(`/facilitador-quiz/${roomCode}`)
-        }, 1500)
       }
+      // Facilitador não é redirecionado automaticamente para quiz time
+      // Ele clica em "Iniciar Partida" e vai para a tela de acertos
     })
     socket.on('room_cancelled', () => {
       if(facilitadorToken === null) {
@@ -88,23 +85,26 @@ const WaitingRoom = () => {
   }, [roomCode])
 
   const handleStartGame = async () => {
-    setIsLoading(true)
-    console.log('facilitadorToken:', facilitadorToken)
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/rooms/${roomCode}/start`, {
-        method: 'PATCH',
-        headers: {
-          'x-facilitator-token': `${facilitadorToken}`,
-        },
-      })
-    } catch (error) {
-      console.error('Erro ao iniciar jogo:', error)
-      setShowModalStart(false)
-    } finally {
-      setIsLoading(false)
-      setShowModalStart(false)
+    // Vai para tela de acertos primeiro
+    if (facilitadorToken) {
+      navigate(`/facilitador-quiz/${roomCode}`)
+    } else {
+      setIsLoading(true)
+      try {
+        await fetch(`${import.meta.env.VITE_API_URL}/rooms/${roomCode}/start`, {
+          method: 'PATCH',
+          headers: {
+            'x-facilitator-token': `${facilitadorToken}`,
+          },
+        })
+      } catch (error) {
+        console.error('Erro ao iniciar jogo:', error)
+        setShowModalStart(false)
+      } finally {
+        setIsLoading(false)
+        setShowModalStart(false)
+      }
     }
-    
   }
 
 
